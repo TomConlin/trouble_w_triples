@@ -1,27 +1,18 @@
-This README is an attempt to replicate to some degree 
-processes from an actual machine spread out over the last year or so
-but within this Docker image now.
+This README is an attempt to replicate processes which took place an actual machine over the last year or so within this Docker image now.
 
-To replicate this process with current data from the three repositories
-instead of the canned snapshots found in the directory 'rawdata'
-please see the Fetch_repositories.txt.  
-(You may need more storage space than this Docker image will allow.)  
+To replicate this process with current data from the three repositories.instead of the canned snapshots found in the directory 'rawdata' please see the ~Fetch_repositories.txt~.  
+(You will need more disk storage space than this Docker image has.)  
 
-Only keeping the fields from the repositories actually needed to replicate the counts in the paper
-the raw data would be about 160M uncompressed and are about 26M gzipped:
-
+Only keeping the fields from the repositories actually needed to replicate the studies of intrest in the triplits paper, the raw data is about 160M uncompressed and about 26M gzipped:
 	ls -1 rawdata/
-	IC_knownfilter.list						# (P.I.) curated list of institution codes  
-	VN_vouchers.unl.gz						# well formed DwCT assembled from VertNet's ic cc & cn   
-	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions  
-	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs  
-
+	IC_knownfilter.list						# (P.I.) curated list of institution codes
+	VN_vouchers.unl.gz						# well formed DwCT assembled from VertNet's ic cc & cn
+	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions
+	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs
 
 The gziped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
 
-
 The easiest way to begin processing this data is with 'zcat', as in:
-
 	zcat rawdata/VN_vouchers.unl.gz | wc -l  
 	8216424  
 	zcat rawdata/locus_voucher.tab.gz  | wc -l  
@@ -30,13 +21,11 @@ The easiest way to begin processing this data is with 'zcat', as in:
 	216809
 
 or maybe:  
-
 	zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
 	zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
 	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
 
 if you are going to stare at the originals much.  
-
 
 ## GenBank
 When we are just looking at broken DwCT, the canonical ones can be counted/filtered out.  
@@ -87,10 +76,10 @@ leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.
 ### Report
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
-but the main ones can be seen in the error flag returned.
- a non zero error flag means the classifier found something wrong
- an even error flag means the result is triplet
- an odd error flag means the result is a doublet 
+but the main classes of issues can be seen in the error flag returned.
+* a non zero error flag means the classifier found something wrong...
+* an even error flag means the result is triplet.  
+* an odd error flag means the result is a doublet.  
 
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
