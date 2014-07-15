@@ -59,9 +59,11 @@ LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just
 	wc -l data/locus_voucher_x_classed.tab
 	433782
 
-The error file has attempts which could not be parsed:
+The error file has attempts which could not be parsed:..
+
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
+
 just this one without a viable IC.  
 
 The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:..
@@ -92,45 +94,36 @@ but the main ones can be seen in the error flag returned.
 
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
-and took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts  
-sigh
-`
-cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
- 
- 167399 17
-  				93903 16
-  10365 19
-   6724 265
-   1349 1
-    783 41
-    635 0
-    444 135
-    378 133
-     			34 264
-     24 267
-     10 3
-      			7 18
-      1 63
-`      
---------------------------------
-	188112		93944
+and took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
 
+	cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
+	 
+	 167399 17
+	  				93903 16
+	  10365 19
+	   6724 265
+	   1349 1
+	    783 41
+	    635 0
+	    444 135
+	    378 133
+	     			34 264
+	     24 267
+	     10 3
+	      			7 18
+	      1 63
+	
+	--------------------------------
+		188112		93944
 
-188,112 syntactic  	(1,984 only)
-280,075 semantic
-186,128 both		(93,947 only)
+188,112 syntactic  	(1,984 only)  
+280,075 semantic  
+186,128 both		(93,947 only)  
 
+========
+116,909  
 
-############################################
-116,909
-
-that is a lot of duplication, 
-on average every DwCT shows up more a little more than twice
-
-
-####################################################################################################
-####################################################################################################
-####################################################################################################
+that is a lot of duplication, on average every DwCT shows up more a little more than twice..
 
 for comparisons I might want a fresh copy of all GB vouchers ... 
 but these will have gone thru the new classifier  numbers might be a little off 
