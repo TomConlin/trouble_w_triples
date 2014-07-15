@@ -64,9 +64,9 @@ The error file has attempts which could not be parsed:
 	::R12074 129 ::cn 
 just this one without a viable IC.  
 
+The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:..
 
-The classification process allows for multiple DwCT per record so the number of duplicate locus IDs can go up:
-	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l  
+	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l
 	423829  
 
 We do not know how many of the original ~100 dups made it in to this set of dups 
