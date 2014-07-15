@@ -94,7 +94,7 @@ but the main ones can be seen in the error flag returned.
 
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
-and took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
+and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
 
 	cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
 	 
@@ -127,40 +127,35 @@ that is a lot of duplication, on average every DwCT shows up more a little more 
 
 for comparisons I might want a fresh copy of all GB vouchers ... 
 but these will have gone thru the new classifier  numbers might be a little off 
+in /home/tomc/Projects/BiSciCol/GenBankII/hillbilly:
 
-in /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
+	./classify-dwct.reb --args "-i ../voucher/locus_voucher.tab" > locus_voucher_classed_all.tab 2> locus_voucher_classed_all.err
+	./filter_known_ic.awk -v"FILTER=../IC_knownfilter.list2" <  locus_voucher_classed_all.tab >  locus_voucher_classed_blessed_all.tab
+	grep "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_doublets_all.tab
+	grep -v "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_triplets_all.tab
+	
+	wc -l locus_voucher_classed_all.tab locus_voucher_classed_blessed_all.tab locus_voucher_doublets_all.tab locus_voucher_triplets_all.tab
+	  444191 locus_voucher_classed_all.tab
+	  292453 locus_voucher_classed_blessed_all.tab
+	  279279 locus_voucher_doublets_all.tab
+	   13174 locus_voucher_triplets_all.tab
+	 1029097 total
 
 
-./classify-dwct.reb --args "-i ../voucher/locus_voucher.tab" > locus_voucher_classed_all.tab 2> locus_voucher_classed_all.err
 
-./filter_known_ic.awk -v"FILTER=../IC_knownfilter.list2" <  locus_voucher_classed_all.tab >  locus_voucher_classed_blessed_all.tab
-
-
-grep "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_doublets_all.tab
-grep -v "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_triplets_all.tab
-
-wc -l locus_voucher_classed_all.tab locus_voucher_classed_blessed_all.tab locus_voucher_doublets_all.tab locus_voucher_triplets_all.tab
-  444191 locus_voucher_classed_all.tab
-  292453 locus_voucher_classed_blessed_all.tab
-  279279 locus_voucher_doublets_all.tab
-   13174 locus_voucher_triplets_all.tab
- 1029097 total
- 
-
-###################################################################
-
-VN GB comparisons
+=========
+#VN GB comparisons
 
 from /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
 and ...now where o where did I leave the VN DwCTs? ... 
- 
+'
 ls -l ../voucher/VN_vouchers.unl
  -rw-rw-r--. 1 tomc biscicol 145440544 Mar 21 12:14 ../voucher/VN_vouchers.unl
 
 wc -l ../voucher/VN_vouchers.unl
 8216424 ../voucher/VN_vouchers.unl
 
-that is promising 
+that is promising:
 head ../voucher/VN_vouchers.unl
 CAS:HERP:1
 CAS:HERP:10
@@ -172,19 +167,19 @@ CAS:HERP:100001
 CAS:HERP:100002
 CAS:HERP:100003
 CAS:HERP:100004
+'
 
 grep -v "::" ../voucher/VN_vouchers.unl | sort > VN_triplets.unl
 grep "::" ../voucher/VN_vouchers.unl  | sort > VN_doublets.unl
 
 
-# T-T
-join -11 -22 VN_triplets.unl locus_voucher_triplets_all.tab  | wc -l
-join: file 1 is not in sorted order
-4571   no change with explicit tab
-
-
-sort -c -k2,2 -t $'\t' VN_triplets.unl
-sort -c VN_triplets.unl
+### T-T:
+	join -11 -22 VN_triplets.unl locus_voucher_triplets_all.tab  | wc -l
+	join: file 1 is not in sorted order
+	4571   no change with explicit tab
+	
+	sort -c -k2,2 -t $'\t' VN_triplets.unl
+	sort -c VN_triplets.unl
 
 sigh, these sort incongruities (w/mixed case UTF8) get old.
 they may not be sorted w.r.t some collation scheme
@@ -192,137 +187,131 @@ but they are ordered by the same rules
 (last time I spent a day & the effect was negligible)
 
 
-# T-T!
-join -11 -22 VN_triplets.unl locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
-join: file 1 is not in sorted order
-4571
+#### T-T!:
+	join -11 -22 VN_triplets.unl locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
+	join: file 1 is not in sorted order
+	4571
 
 
-# D-D  
-join -11 -22 VN_doublets.unl locus_voucher_doublets_all.tab  | wc -l
-join: file 2 is not in sorted order
-0
+#### D-D:
+	join -11 -22 VN_doublets.unl locus_voucher_doublets_all.tab  | wc -l
+	join: file 2 is not in sorted order
+	0
 
-# not surprising, VN only has a handful of doublets
-cut -f1 -d \:  VN_doublets.unl | uniq
-TTRS
-grep "TTRS::"  locus_voucher_doublets_all.tab
+not surprising, VN only has a handful of doublets:
+	cut -f1 -d \:  VN_doublets.unl | uniq
+	TTRS
+	grep "TTRS::"  locus_voucher_doublets_all.tab
 
-# VN doublets confirmed for nothing.
+VN doublets confirmed for nothing.  
 
-### treat VN triplets as doublets
+### treat VN triplets as doublets:
+	sed 's|:[^:]*:|::|g' VN_triplets.unl  | sort > VN_triplets_gutted.unl
+	head VN_triplets_gutted.unl
+	CAS::1
+	CAS::1
+	CAS::1
+	CAS::1
+	CAS::1
+	CAS::1
+	CAS::10
+	CAS::10
+	CAS::10
+	CAS::10
+	
+	sort -u VN_triplets_gutted.unl > VN_triplets_gutted_distinct.unl
+	
+	wc -l VN_triplets_gutted.unl VN_triplets_gutted_distinct.unl
+	  8214727 VN_triplets_gutted.unl
+	  5682825 VN_triplets_gutted_distinct.unl
+	
+	join -11 -22 VN_triplets_gutted.unl locus_voucher_doublets_all.tab  | wc -l
+	join: file 2 is not in sorted order
+	join: file 1 is not in sorted order
+	104027  no change with explicit tab
+	
+	join -11 -22 VN_triplets_gutted_distinct.unl locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
+	join: file 2 is not in sorted order
+	join: file 1 is not in sorted order
+	58116
+	grep "TTRS:"  locus_voucher_triplets_all.tab
 
-sed 's|:[^:]*:|::|g' VN_triplets.unl  | sort > VN_triplets_gutted.unl
-head VN_triplets_gutted.unl
+========
 
-CAS::1
-CAS::1
-CAS::1
-CAS::1
-CAS::1
-CAS::1
-CAS::10
-CAS::10
-CAS::10
-CAS::10
-
-sort -u VN_triplets_gutted.unl > VN_triplets_gutted_distinct.unl
-
-wc -l VN_triplets_gutted.unl VN_triplets_gutted_distinct.unl
-  8214727 VN_triplets_gutted.unl
-  5682825 VN_triplets_gutted_distinct.unl
-
-
-join -11 -22 VN_triplets_gutted.unl locus_voucher_doublets_all.tab  | wc -l
-join: file 2 is not in sorted order
-join: file 1 is not in sorted order
-104027  no change with explicit tab
-
-join -11 -22 VN_triplets_gutted_distinct.unl locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
-join: file 2 is not in sorted order
-join: file 1 is not in sorted order
-58116
-
-grep "TTRS:"  locus_voucher_triplets_all.tab
-
-###################################################################
-
-BOLD GB comparisons
+#BOLD GB comparisons
 
 bold 
 /home/tomc/Projects/BiSciCol/Triples/BOLD_chordata/20131023/hillbilly/reclassify/
 Gb
 /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
 
+`cat ID_sampleid_classified_blessed_only.tab ID_catalognum_classified_blessed_only.tab ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> ID_all_triplets.tab`  
+`cat ID_sampleid_classified_blessed_only.tab ID_catalognum_classified_blessed_only.tab ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > ID_all_doublets.tab`  
 
-cat ID_sampleid_classified_blessed_only.tab ID_catalognum_classified_blessed_only.tab ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> ID_all_triplets.tab
-cat ID_sampleid_classified_blessed_only.tab ID_catalognum_classified_blessed_only.tab ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > ID_all_doublets.tab
+#### T-T:
+	join -j2 -t '\\t' ./../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets.tab locus_voucher_triplets_all.tab  | wc -l
+	67
 
-# T-T
-join -j2 -t '\\t' ./../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets.tab locus_voucher_triplets_all.tab  | wc -l
-67
+#### T-T!:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets.tab locus_voucher_triplets_all.tab | cut -f1 -d ' ' | sort -u |wc -l
+	60
 
-# T-T!
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets.tab locus_voucher_triplets_all.tab | cut -f1 -d ' ' | sort -u |wc -l
-60
+#### T-D:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets_gutted.tab locus_voucher_doublets_all.tab | wc -l
+	join: file 2 is not in sorted order
+	join: file 1 is not in sorted order
+	69
 
-
-# T-D
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets_gutted.tab locus_voucher_doublets_all.tab | wc -l
-join: file 2 is not in sorted order
-join: file 1 is not in sorted order
-69
-
-# T-D!
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets_gutted.tab locus_voucher_doublets_all.tab | cut -f1  -d ' '| sort -u | wc -l
-join: file 2 is not in sorted order
-join: file 1 is not in sorted order
-30
+#### T-D!:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_triplets_gutted.tab locus_voucher_doublets_all.tab | cut -f1  -d ' '| sort -u | wc -l
+	join: file 2 is not in sorted order
+	join: file 1 is not in sorted order
+	30
 
 
-# D-D
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab  | wc -l
-join: file 2 is not in sorted order
-283,875  ... that is a scary number
+#### D-D:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab  | wc -l
+	join: file 2 is not in sorted order
+	283,875  ... that is a scary number
+	
+	cut -f2  ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
+	    288 SAIAB::ES08
+	    115 SAIAB::ES07
+	     76 ECOCH::7192
+	     73 ECOCH::7009
+	     56 MNHN::2009
+	     52 ECOCH::6416
+	     42 ECOCH::6109
+	     41 ECOCH::5911
+	     35 SAIAB::ES06
+	     27 UAIC::14963.01
+	cut -f2  locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head 
+	   1587 LSUMZ::B927
+	   1585 LSUMZ::B1980
+	  1580 LSUMZ::B28330
+	   1574 LSUMZ::B37197
+	   1571 LSUMZ::B5354
+	   1550 LSUMZ::B7513
+	   1518 LSUMZ::B103926
+	   1492 LSUMZ::B7923
+	   1487 LSUMZ::B36554
+	   1486 LSUMZ::B37257
+	
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
+	join: file 2 is not in sorted order
+	 221778 INIDEP::T
+	  16426 ZMMU::SVK
+	    858 NME::A
+	    670 ZMMU::RAN
+	    450 ZMMU::RYA
+	    364 NMP::6V
+	    364 BPBM::FR
+	    256 PIN::RVV
+	    256 MCZ::335
+	    192 SIO::93-298
 
-cut -f2  ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
-    288 SAIAB::ES08
-    115 SAIAB::ES07
-     76 ECOCH::7192
-     73 ECOCH::7009
-     56 MNHN::2009
-     52 ECOCH::6416
-     42 ECOCH::6109
-     41 ECOCH::5911
-     35 SAIAB::ES06
-     27 UAIC::14963.01
-cut -f2  locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head 
-   1587 LSUMZ::B927
-   1585 LSUMZ::B1980
-   1580 LSUMZ::B28330
-   1574 LSUMZ::B37197
-   1571 LSUMZ::B5354
-   1550 LSUMZ::B7513
-   1518 LSUMZ::B103926
-   1492 LSUMZ::B7923
-   1487 LSUMZ::B36554
-   1486 LSUMZ::B37257
 
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
-join: file 2 is not in sorted order
- 221778 INIDEP::T
-  16426 ZMMU::SVK
-    858 NME::A
-    670 ZMMU::RAN
-    450 ZMMU::RYA
-    364 NMP::6V
-    364 BPBM::FR
-    256 PIN::RVV
-    256 MCZ::335
-    192 SIO::93-298
-
-
-ahh good old spaces within identifiers ...
+ahh good old spaces within identifiers ..
 2910202   INIDEP::T 0224
 
 # Ctrl-v<tab> the -t 
@@ -331,101 +320,94 @@ join: file 1 is not in sorted order
 42975
 
 
-# D-D!
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
-join: file 2 is not in sorted order
-27,936
+#### D-D!:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_doublets.tab locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
+	join: file 2 is not in sorted order
+	27,936
+	
+	sed 's|:[^:]*:|::|g' locus_voucher_triplets_all.tab  | sort > locus_voucher_triplets_all_gutted.tab
 
-sed 's|:[^:]*:|::|g' locus_voucher_triplets_all.tab  | sort > locus_voucher_triplets_all_gutted.tab
+### D-T:
+	join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_.tab locus_voucher_doublets_all_gutted.tab | wc -l
+	0
 
-# D-T
+========
 
-join -j2 ../../Triples/BOLD_chordata/20131023/hillbilly/reclassify/ID_all_.tab locus_voucher_doublets_all_gutted.tab | wc -l
-0
-########################################################################
- 
-VN BOLD comparisons
+#VN BOLD comparisons
 
 from
 /home/tomc/Projects/BiSciCol/Triples/BOLD_chordata/20131023/hillbilly/reclassify
 and
 /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
 
-# T-T
-join -12 -21  ID_all_triplets.tab  ../../../../../GenBankII/hillbilly/VN_triplets.unl | wc -l
-join: file 2 is not in sorted order
-103   checked w/explicit tab: same
+#### T-T:
+	join -12 -21  ID_all_triplets.tab  ../../../../../GenBankII/hillbilly/VN_triplets.unl | wc -l
+	join: file 2 is not in sorted order
+	103   checked w/explicit tab: same
 
-# T-D
-join -12 -21  ID_all_doublets.tab  ../../../../../GenBankII/hillbilly/VN_triplets_gutted.unl |wc -l
-join: file 2 is not in sorted order
-30,161 checked w/explicit tab: same
+#### T-D:
+	join -12 -21  ID_all_doublets.tab  ../../../../../GenBankII/hillbilly/VN_triplets_gutted.unl |wc -l
+	join: file 2 is not in sorted order
+	30,161 checked w/explicit tab: same
 
-# T-D!
-join -12 -21  ID_all_doublets.tab  ../../../../../GenBankII/hillbilly/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
-join: file 2 is not in sorted order
-18,766
+#### T-D!:
+	join -12 -21  ID_all_doublets.tab  ../../../../../GenBankII/hillbilly/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
+	join: file 2 is not in sorted order
+	18,766
 
-# D-T
-join -12 -21  ID_all_triplets_gutted.tab  ../../../../../GenBankII/hillbilly/VN_doublets.unl |wc -l
-join: file 1 is not in sorted order
-0     not checked as it ain't getting smaller
+#### D-T:
+	join -12 -21  ID_all_triplets_gutted.tab  ../../../../../GenBankII/hillbilly/VN_doublets.unl |wc -l
+	join: file 1 is not in sorted order
+	0     not checked as it ain't getting smaller
 
-# D-D
-join -12 -21  ID_all_doublets.tab ../../../../../GenBankII/hillbilly/VN_doublets.unl |wc -l
-0
+#### D-D:
+	join -12 -21  ID_all_doublets.tab ../../../../../GenBankII/hillbilly/VN_doublets.unl |wc -l
+	0
 
 
-###########################################################################################
-###################################################################################################
-###################################################################################################
-###################################################################################################
-for the diagrams I really want just "all matches between sources" 
+=========
+=========
+For the diagrams I really want just "all matches between sources"   
 
 But to find the ones common to all three when they are all sliced and diced 
-and needing to be reassembled is not a warm and fuzzy.
+and needing to be reassembled is not a warm and fuzzy.  
 
 ... in a sense we would gain some numbers (and accuracy) over the existing
-process since it glosses over corner cases such as if a doublet matched a canonical.
+process since it glosses over corner cases such as if a doublet matched a canonical.  
 
-least work would be to do bold in common with the other two 
-then compare the results in the next round
+least work would be to do bold in common with the other two then compare the results in the next round  
 
 
-so classify bold catalognum & sampleid then filter on IC
-merge but only keep one copy of the overlap
+so classify bold catalognum & sampleid then filter on IC merge but only keep one copy of the overlap:\
+	../classify-dwct.reb --args "-i ../ID_sampleid.tab" > ID_sampleid_classified_all.tab 2> ID_sampleid_classified_all.err 
+	../classify-dwct.reb --args "-i ../ID_catalognum.tab" > ID_catalognum_classified_all.tab 2> ID_catalognum_classified_all.err
 
-../classify-dwct.reb --args "-i ../ID_sampleid.tab" > ID_sampleid_classified_all.tab 2> ID_sampleid_classified_all.err 
-../classify-dwct.reb --args "-i ../ID_catalognum.tab" > ID_catalognum_classified_all.tab 2> ID_catalognum_classified_all.err
-
-filter for blessed IC
-
-../filter_known_ic.awk -v "FILTER=../../../../../GenBankII/IC_knownfilter.list2" <  ID_sampleid_classified_all.tab >  ID_sampleid_classified_blessed_all.tab
-../filter_known_ic.awk -v "FILTER=../../../../../GenBankII/IC_knownfilter.list2" <  ID_catalognum_classified_all.tab >  ID_catalognum_classified_blessed_all.tab
-
-comm -12 ID_catalognum_classified_blessed_all.tab ID_sampleid_classified_blessed_all.tab | wc -l
-2248 (including ID and classification which don't matter)
-
-cut -f2  ID_catalognum_classified_blessed_all.tab | sort >  catalognum_alldone.list
-cut -f2   ID_sampleid_classified_blessed_all.tab | sort >   sampleid_alldone.list
-
-comm -12  catalognum_alldone.list sampleid_alldone.list | wc -l
-2280	meh
- 
-comm -12  catalognum_alldone.list sampleid_alldone.list > shared_alldone.list
-comm -13  catalognum_alldone.list sampleid_alldone.list > sampleid_only_alldone.list
-comm -23  catalognum_alldone.list sampleid_alldone.list > catalognum_only_alldone.list
-
-wc -l shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.list
-  2280 shared_alldone.list
- 37701 sampleid_only_alldone.list
- 25299 catalognum_only_alldone.list
- 65280 total                          that is up about 600
-
-cat shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.list |sort > bold_dwct_all.list
-sort -u  bold_dwct_all.list | wc -l
-57225                                    unique bold DwCT available
-
+filter for blessed IC:
+	../filter_known_ic.awk -v "FILTER=../../../../../GenBankII/IC_knownfilter.list2" <  ID_sampleid_classified_all.tab >  ID_sampleid_classified_blessed_all.tab
+	../filter_known_ic.awk -v "FILTER=../../../../../GenBankII/IC_knownfilter.list2" <  ID_catalognum_classified_all.tab >  ID_catalognum_classified_blessed_all.tab
+	
+	comm -12 ID_catalognum_classified_blessed_all.tab ID_sampleid_classified_blessed_all.tab | wc -l
+	2248 (including ID and classification which don't matter)
+	
+	cut -f2  ID_catalognum_classified_blessed_all.tab | sort >  catalognum_alldone.list
+	cut -f2   ID_sampleid_classified_blessed_all.tab | sort >   sampleid_alldone.list
+	
+	comm -12  catalognum_alldone.list sampleid_alldone.list | wc -l
+	2280	meh
+	
+	comm -12  catalognum_alldone.list sampleid_alldone.list > shared_alldone.list
+	comm -13  catalognum_alldone.list sampleid_alldone.list > sampleid_only_alldone.list
+	comm -23  catalognum_alldone.list sampleid_alldone.list > catalognum_only_alldone.list
+	
+	wc -l shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.list
+	  2280 shared_alldone.list
+	 37701 sampleid_only_alldone.list
+	 25299 catalognum_only_alldone.list
+	 65280 total                          that is up about 600
+	
+	cat shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.list |sort > bold_dwct_all.list
+	sort -u  bold_dwct_all.list | wc -l
+	57225                                    unique bold DwCT available
 
 bolds list of 65,280 effective DwCT 
 /home/tomc/Projects/BiSciCol/Triples/BOLD_chordata/20131023/hillbilly/reclassify/bold_dwct_all.list
