@@ -20,22 +20,21 @@ the raw data would be about 160M uncompressed and are about 26M gzipped:
 The gziped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
 
 
-The easiest way to begin processing this data is with 'zcat', as in:  
-` bash
-zcat rawdata/VN_vouchers.unl.gz | wc -l  
-8216424  
-zcat rawdata/locus_voucher.tab.gz  | wc -l  
-595744  
-zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l  
-216809  
-`
+The easiest way to begin processing this data is with 'zcat', as in:
 
-or maybe  
-`
-zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
-zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
-zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
-`  
+	zcat rawdata/VN_vouchers.unl.gz | wc -l  
+	8216424  
+	zcat rawdata/locus_voucher.tab.gz  | wc -l  
+	595744  
+	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l  
+	216809
+
+or maybe:  
+
+	zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
+	zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
+	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
+
 if you are going to stare at the originals much.  
 
 
@@ -43,27 +42,26 @@ if you are going to stare at the originals much.
 When we are just looking at broken DwCT, the canonical ones can be counted/filtered out.  
 
 ### Filter out canonical vouchers
-`
-grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
-wc -l data/locus_voucher_x.tab  
-585257 data/locus_voucher_x.tab  
-`
-check if the locus are a Primary Key (unique)  
- 
-`
-cut -f1 data/locus_voucher_x.tab | sort -u | wc -l  
-585159
-`
+:
+	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
+	wc -l data/locus_voucher_x.tab  
+	585257 data/locus_voucher_x.tab  
 
-not quite a PK. ~ 100 duplicated locus IDs   
-but no worries, just checking out of curiosity.  (99.98% unique)  
+check if the locus are a Primary Key (unique):  
+
+	cut -f1 data/locus_voucher_x.tab | sort -u | wc -l  
+	585159
+
+
+LOCUS is not quite a PK. ~ 100 duplicated locus IDs   
+but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
 #### Classify
-` 
-bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
-wc -l data/locus_voucher_x_classed.tab
-433782 data/locus_voucher_x_classed.ta
-`
+:
+	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
+	wc -l data/locus_voucher_x_classed.tab
+	433782
+
 
 the error file has attempts which could not be parsed
 `
