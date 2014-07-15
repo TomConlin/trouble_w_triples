@@ -41,8 +41,7 @@ if you are going to stare at the originals much.
 ## GenBank
 When we are just looking at broken DwCT, the canonical ones can be counted/filtered out.  
 
-### Filter out canonical vouchers
-:  
+### Filter out canonical vouchers:
 	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
 	wc -l data/locus_voucher_x.tab  
 	585257 data/locus_voucher_x.tab  
@@ -56,8 +55,7 @@ check if the locus are a Primary Key (unique):
 LOCUS is not quite a PK. ~ 100 duplicated locus IDs   
 but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
-#### Classify
-:  
+#### Classify:
 	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
 	wc -l data/locus_voucher_x_classed.tab
 	433782
