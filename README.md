@@ -52,8 +52,7 @@ check if the locus are a Primary Key (unique):
 	585159
 
 
-LOCUS is not quite a PK. ~ 100 duplicated locus IDs   
-but no worries, we are just checking out of curiosity.  (99.98% unique)  
+LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
 #### Classify:
 	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
@@ -61,40 +60,32 @@ but no worries, we are just checking out of curiosity.  (99.98% unique)
 	433782
 
 
-the error file has attempts which could not be parsed
-`
-cat data/locus_voucher_x_classed.err
-::R12074 129 ::cn 
-`
+the error file has attempts which could not be parsed:
+	cat data/locus_voucher_x_classed.err
+	::R12074 129 ::cn 
 just this one without a viable IC.  
 
 
-the classification process allows for multiple DwCT per record
-so the number of duplicate locus IDs can go up  
-`
-cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l  
-423829  
-`
+The classification process allows for multiple DwCT per record so the number of duplicate locus IDs can go up:  
+	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l  
+	423829  
 
-do not know how many of the original ~100 dups made it in to this set of ~10,000 
-but there are now 9,953 on this side. (97.7% unique)
+We do not know how many of the original ~100 dups made it in to this set of dups 
+but there are now 9,953 dups on this parsed side. (97.7% unique)  
 
+#### Filter for known Institution codes:
+	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list2" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
+	wc -l  data/locus_voucher_x_classed_blessed.tab
+	282,056 locus_voucher_classed_blessed.tab
+	cut -f1 locus_voucher_classed_blessed.tab | sort -u | wc -l
+	279,473
 
-#### Filter for known Institution codes
-`
-bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list2" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
-wc -l  data/locus_voucher_x_classed_blessed.tab
-282,056 locus_voucher_classed_blessed.tab
-cut -f1 locus_voucher_classed_blessed.tab | sort -u | wc -l
-279,473
-`
-leaving 2,583 locus with alternative (or duplicate) DwCT 
-which is back up to 99.08% unique.
+leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.08% unique.  
 
 
 ### Report
 
-the classifier reports on the types of issues it comes across changing a string into a DwCT
+The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main ones can be seen in the error flag returned.
  a non zero error flag means the classifier found something wrong
  an even error flag means the result is triplet
