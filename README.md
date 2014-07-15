@@ -1,68 +1,64 @@
 This README is an attempt to replicate to some degree 
 processes from an actual machine spread out over the last year or so
-within this Docker image now.
+but within this Docker image now.
 
 To replicate this process with current data from the three repositories
 instead of the canned snapshots found in the directory 'rawdata'
-please see the Fetch_repositories.txt. 
-(You may need more storage space than Docker will allow.)
+please see the Fetch_repositories.txt.  
+(You may need more storage space than this Docker image will allow.)  
 
-By only keeping the fields from the repositories actually needed to replicate the counts in the paper
+Only keeping the fields from the repositories actually needed to replicate the counts in the paper
+the raw data would be about 160M uncompressed and are about 26M gzipped:
 
-The raw data would be about 160M uncompressed and are about 26M gzipped. 
-`
-ls -1 rawdata/
-IC_knownfilter.list                            	# (PI) curated list of institution codes
-VN_vouchers.unl.gz								# well formed DwCT assembled from VertNet's ic cc & cn 
-locus_voucher.tab.gz							# the locus and specimen_voucher field from vertebrate GenBank divisions
-sampleid_catalognum_bold_gbacc.tab.gz			# four fields from BOLD chordate records 2 might have DwCTs
-`
-
-the gziped files are write protected so we always have a pristine copy 
-to fall back on if our experiments become unintentionally destructive.
+	ls -1 rawdata/
+	IC_knownfilter.list						# (P.I.) curated list of institution codes  
+	VN_vouchers.unl.gz						# well formed DwCT assembled from VertNet's ic cc & cn   
+	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions  
+	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs  
 
 
-easiest way to begin processing this data is with 'zcat' 
-as in:  
-`
-zcat rawdata/VN_vouchers.unl.gz | wc -l
-8216424
-zcat rawdata/locus_voucher.tab.gz  | wc -l
-595744
-zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l
-216809
+The gziped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
+
+
+The easiest way to begin processing this data is with 'zcat', as in:  
+` bash
+zcat rawdata/VN_vouchers.unl.gz | wc -l  
+8216424  
+zcat rawdata/locus_voucher.tab.gz  | wc -l  
+595744  
+zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l  
+216809  
 `
 
-or maybe 
+or maybe  
 `
-zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl
-zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab
-zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab
-`
-if you are going to stare at the originals much. 
+zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
+zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
+zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
+`  
+if you are going to stare at the originals much.  
 
 
 ## GenBank
-If we are just looking at broken DwCT, 
-the canonical ones can be counted/filtered  	 
+When we are just looking at broken DwCT, the canonical ones can be counted/filtered out.  
 
-# Filter out canonical vouchers	 
+### Filter out canonical vouchers
 `
-grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab 
-wc -l data/locus_voucher_x.tab
-585257 data/locus_voucher_x.tab
+grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
+wc -l data/locus_voucher_x.tab  
+585257 data/locus_voucher_x.tab  
 `
 check if the locus are a Primary Key (unique)  
  
 `
-cut -f1 data/locus_voucher_x.tab | sort -u | wc -l
+cut -f1 data/locus_voucher_x.tab | sort -u | wc -l  
 585159
 `
 
-not quite a PK. ~ 100 duplicated locus IDs 
-but no worries, just checking out of curiosity.  (99.98% unique)
+not quite a PK. ~ 100 duplicated locus IDs   
+but no worries, just checking out of curiosity.  (99.98% unique)  
 
-### Classify
+#### Classify
 ` 
 bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
 wc -l data/locus_voucher_x_classed.tab
@@ -80,15 +76,15 @@ just this one without a viable IC.
 the classification process allows for multiple DwCT per record
 so the number of duplicate locus IDs can go up  
 `
-cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l
-423829
+cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l  
+423829  
 `
 
 do not know how many of the original ~100 dups made it in to this set of ~10,000 
 but there are now 9,953 on this side. (97.7% unique)
 
 
-### Filter for known Institution codes
+#### Filter for known Institution codes
 `
 bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list2" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
 wc -l  data/locus_voucher_x_classed_blessed.tab
@@ -96,14 +92,14 @@ wc -l  data/locus_voucher_x_classed_blessed.tab
 cut -f1 locus_voucher_classed_blessed.tab | sort -u | wc -l
 279,473
 `
-leaving 2,583 locus with alternative (or duplicate) dwct 
+leaving 2,583 locus with alternative (or duplicate) DwCT 
 which is back up to 99.08% unique.
 
 
 ### Report
 
-the classifier reports on the types of issues it comes across changing a string into a dwct
-bot the main ones can be seen in the error flag returned.
+the classifier reports on the types of issues it comes across changing a string into a DwCT
+but the main ones can be seen in the error flag returned.
  a non zero error flag means the classifier found something wrong
  an even error flag means the result is triplet
  an odd error flag means the result is a doublet 
@@ -143,7 +139,7 @@ cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -
 116,909
 
 that is a lot of duplication, 
-on average every dwct shows up more a little more than twice
+on average every DwCT shows up more a little more than twice
 
 
 ####################################################################################################
@@ -177,7 +173,7 @@ wc -l locus_voucher_classed_all.tab locus_voucher_classed_blessed_all.tab locus_
 VN GB comparisons
 
 from /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
-and ...now where o where did I leave the VN dwcts? ... 
+and ...now where o where did I leave the VN DwCTs? ... 
  
 ls -l ../voucher/VN_vouchers.unl
  -rw-rw-r--. 1 tomc biscicol 145440544 Mar 21 12:14 ../voucher/VN_vouchers.unl
@@ -449,10 +445,10 @@ wc -l shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.lis
 
 cat shared_alldone.list sampleid_only_alldone.list catalognum_only_alldone.list |sort > bold_dwct_all.list
 sort -u  bold_dwct_all.list | wc -l
-57225                                    unique bold dwct available
+57225                                    unique bold DwCT available
 
 
-bolds list of 65,280 effective dwct 
+bolds list of 65,280 effective DwCT 
 /home/tomc/Projects/BiSciCol/Triples/BOLD_chordata/20131023/hillbilly/reclassify/bold_dwct_all.list
 
 ###################################################################################################
@@ -475,7 +471,7 @@ wc -l genbank_dwct_all.list
 sort -u genbank_dwct_all.list | wc -l 
 123,111
 
-GenBanks list of 292,453 effective dwct 
+GenBanks list of 292,453 effective DwCT 
 
 /home/tomc/Projects/BiSciCol/GenBankII/hillbilly/genbank_dwct_all.list
 #########################################################################################
