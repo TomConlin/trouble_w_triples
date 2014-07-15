@@ -59,14 +59,13 @@ LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just
 	wc -l data/locus_voucher_x_classed.tab
 	433782
 
-
-the error file has attempts which could not be parsed:
+The error file has attempts which could not be parsed:
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
 just this one without a viable IC.  
 
 
-The classification process allows for multiple DwCT per record so the number of duplicate locus IDs can go up:  
+The classification process allows for multiple DwCT per record so the number of duplicate locus IDs can go up:
 	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l  
 	423829  
 
