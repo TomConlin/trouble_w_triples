@@ -77,9 +77,10 @@ leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main classes of issues can be seen in the error flag returned.
-* a non zero error flag means the classifier found something wrong...
-* an even error flag means the result is triplet.  
-* an odd error flag means the result is a doublet.  
+* a non zero error flag means the classifier found something wrong
+* an even error flag means semantic issues exist 
+* an odd error flag means syntatic issues exist
+* an odd error flag greater than one means both type of issues exist
 
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
