@@ -1,1 +1,37 @@
-placeholder for more doc
+#BOLD
+BarCode of Life records will be found at <http://www.barcodinglife.com/index.php/Public_SearchTerms> by searching for "Chordata" (the dataset I used in 2013-14 was around 20M gzipped but 122M to dl)
+
+
+```
+curl "http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Chordata&format=tsv" > BOLD_Chordata_`datestamp`.tsv
+```
+
+#GenBank
+GenBank records will be found by FTP-ing the divisions related to vertabrates (around 6.3G gzipped)
+```
+for div in pri rod mam vrt ; do
+        wget ftp://bio-mirror.net/biomirror/genbank/gb${div}*.seq.gz
+done
+```
+
+#VertNet
+
+VertNet records come in Darwin Core Archive datasets so there will be over a hundred files to fetch
+
+I first got to the archives by scraping and transforming links found on 
+<http://ipt.vertnet.org:8080/ipt/>  with something named "fetch_VertNet_IPT.sh" 
+
+However I have since learned of <https://vertnet.cartodb.com/tables/resource/public>
+which also has links to to VertNet datasets not hosted at VertNet.
+
+```
+curl -s "http://vertnet.cartodb.com/api/v2/sql?q=SELECT+dwca+FROM+resource" | jq ".rows[]|[.dwca]|@sh"
+```
+
+will give you the list of URLs to fetch but I will leave it up to you to choose how 
+note: my generating this list used "jq" <https://stedolan.github.io/jq/>
+
+took about an hour (serially) and produced 19G of uncompressed files. 
+
+
+ 
