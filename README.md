@@ -1,16 +1,23 @@
-This README is an attempt to replicate processes which took place an actual machine over the last year or so within this Docker image now.
+This README is an attempt to replicate processes occurring on a local server during 2013-2014 within this Docker image now.
 
-To replicate this process with current data from the three repositories.instead of the canned snapshots found in the directory 'rawdata' please see the ~Fetch_repositories.txt~.  
+To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
 (You will need more disk storage space than this Docker image has.)  
 
-Only keeping the fields from the repositories actually needed to replicate the studies of intrest in the triplits paper, the raw data is about 160M uncompressed and about 26M gzipped:
+There are many excellent tutorials on starting up a Docker image which will amount to installing Docker then issuing a variant (as root or with sudo) of:
+
+   docker pull tomc/trouble_w_triples
+   docker run -i -t timc/trouble_w_triples:initial /bin/bash
+
+the remainder of this text assumes you are at the command line within the Docker image.
+
+By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
 	ls -1 rawdata/
 	IC_knownfilter.list						# (P.I.) curated list of institution codes
 	VN_vouchers.unl.gz						# well formed DwCT assembled from VertNet's ic cc & cn
 	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions
 	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs
 
-The gziped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
+The gzipped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
 
 The easiest way to begin processing this data is with 'zcat', as in:
 	zcat rawdata/VN_vouchers.unl.gz | wc -l  
@@ -28,7 +35,7 @@ or maybe:
 if you are going to stare at the originals much.  
 
 ## GenBank
-When we are just looking at broken DwCT, the canonical ones can be counted/filtered out.  
+When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted/filtered out.  
 
 ### Filter out canonical vouchers:
 	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
@@ -48,7 +55,7 @@ LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just
 	wc -l data/locus_voucher_x_classed.tab
 	433782
 
-The error file has attempts which could not be parsed:..
+The error file has attempts which could not be parsed:
 
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
@@ -60,11 +67,11 @@ The classification process allows for multiple DwCT per record, so the number of
 	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l
 	423829  
 
-We do not know how many of the original ~100 dups made it in to this set of dups 
-but there are now 9,953 dups on this parsed side. (97.7% unique)  
+We do not know how many of the original ~100 duplications made it in to this set of duplications
+but there are now 9,953 duplications on this parsed side. (97.7% unique)  
 
 #### Filter for known Institution codes:
-	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list2" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
+	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
 	282,056 locus_voucher_classed_blessed.tab
 	cut -f1 locus_voucher_classed_blessed.tab | sort -u | wc -l
@@ -79,7 +86,7 @@ The classifier reports on the types of issues it comes across changing a string 
 but the main classes of issues can be seen in the error flag returned.
 * a non zero error flag means the classifier found something wrong
 * an even error flag means semantic issues exist 
-* an odd error flag means syntatic issues exist
+* an odd error flag means syntactic issues exist
 * an odd error flag greater than one means both type of issues exist
 
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
@@ -113,18 +120,15 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 ========
 116,909  
 
-that is a lot of duplication, on average every DwCT shows up more a little more than twice..
+that is a fair amount of duplication, on average every DwCT shows up more a little more than twice
+We are also interested in all (not filtering out canonical)
 
-for comparisons I might want a fresh copy of all GB vouchers ... 
-but these will have gone thru the new classifier  numbers might be a little off 
-in /home/tomc/Projects/BiSciCol/GenBankII/hillbilly:
-
-	./classify-dwct.reb --args "-i ../voucher/locus_voucher.tab" > locus_voucher_classed_all.tab 2> locus_voucher_classed_all.err
-	./filter_known_ic.awk -v"FILTER=../IC_knownfilter.list2" <  locus_voucher_classed_all.tab >  locus_voucher_classed_blessed_all.tab
-	grep "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_doublets_all.tab
-	grep -v "::" locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > locus_voucher_triplets_all.tab
+	bin/classify-dwct.reb --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab 2> data/locus_voucher_classed_all.err
+	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab >  data/locus_voucher_classed_blessed_all.tab
+	grep "::" data/locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > data/locus_voucher_doublets_all.tab
+	grep -v "::" data/locus_voucher_classed_blessed_all.tab | sort -k2,2 -t $'\t' > data/locus_voucher_triplets_all.tab
 	
-	wc -l locus_voucher_classed_all.tab locus_voucher_classed_blessed_all.tab locus_voucher_doublets_all.tab locus_voucher_triplets_all.tab
+	wc -l data/locus_voucher_classed_all.tab data/locus_voucher_classed_blessed_all.tab data/locus_voucher_doublets_all.tab data/locus_voucher_triplets_all.tab
 	  444191 locus_voucher_classed_all.tab
 	  292453 locus_voucher_classed_blessed_all.tab
 	  279279 locus_voucher_doublets_all.tab
@@ -132,17 +136,12 @@ in /home/tomc/Projects/BiSciCol/GenBankII/hillbilly:
 	 1029097 total
 
 
-
 =========
 #VN GB comparisons
 
-from /home/tomc/Projects/BiSciCol/GenBankII/hillbilly
-and ...now where o where did I leave the VN DwCTs? ... 
-'
-ls -l ../voucher/VN_vouchers.unl
- -rw-rw-r--. 1 tomc biscicol 145440544 Mar 21 12:14 ../voucher/VN_vouchers.unl
+Initial datasource:
 
-wc -l ../voucher/VN_vouchers.unl
+	wc -l data/VN_vouchers.unl
 8216424 ../voucher/VN_vouchers.unl
 
 that is promising:
