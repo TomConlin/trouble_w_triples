@@ -73,8 +73,9 @@ but there are now 9,953 duplications on this parsed side. (97.7% unique)
 #### Filter for known Institution codes:
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
-	282,056 locus_voucher_classed_blessed.tab
-	cut -f1 locus_voucher_classed_blessed.tab | sort -u | wc -l
+	282,056 data/locus_voucher_classed_blessed.tab
+	
+	cut -f1 data/locus_voucher_classed_blessed.tab | sort -u | wc -l
 	279,473
 
 leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.08% unique.  
@@ -92,6 +93,9 @@ but the main classes of issues can be seen in the error flag returned.
 an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
 and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
+
+	cat data/locus_voucher_x_classed_blessed.tab | wc -l
+	282,056
 
 	cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
 	 
@@ -111,16 +115,117 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 	      1 63
 	
 	--------------------------------
-		188112		93944
+		188,112		93,944
 
-188,112 syntactic  	(1,984 only)  
-280,075 semantic  
-186,128 both		(93,947 only)  
+	188,112 syntactic  	( 1,984 only)  
+	280,075 semantic    (93,947 only) 
+	186,128 both		 
 
-========
-116,909  
 
-that is a fair amount of duplication, on average every DwCT shows up more a little more than twice
+
+	cut -f2 data/locus_voucher_x_classed_blessed.tab | sort -u | wc -l
+	116,909 
+
+
+282,056/116,909 = 2.412
+is a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
+lets see if that is true. Remember this is a distribution of counts for duplication so the first number is how many non-canonical DwCT appeared the second number times"
+
+	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
+  73958 1
+  18999 2
+   8075 3
+   4982 4
+   3374 5
+   2078 6
+   1338 7
+   1210 8
+    784 10
+    583 9
+    219 12
+    172 13
+    141 11
+    130 14
+     99 17
+     97 15
+     93 16
+     53 21
+     49 18
+     42 20
+     36 22
+     34 35
+     33 19
+     32 28
+     28 23
+     27 27
+     26 26
+     25 25
+     22 24
+     22 29
+     13 30
+     10 43
+      8 33
+      8 42
+      7 34
+      7 45
+      6 36
+      6 46
+      5 31
+      5 32
+      5 38
+      5 41
+      4 40
+      4 44
+      4 48
+      3 37
+      3 39
+      3 49
+      3 50
+      1 53
+      1 62
+      1 67
+      1 76
+      1 85
+      1 91
+      1 120
+      1 327
+      1 533
+      1 593
+      1 602
+      1 649
+      1 653
+      1 670
+      1 694
+      1 731
+      1 753
+      1 756
+      1 959
+      1 1117
+      1 1130
+      1 1257
+      1 1296
+      1 1337
+      1 1351
+      1 1425
+      1 1450
+      1 1464
+      1 1476
+      1 1486
+      1 1487
+      1 1492
+      1 1518
+      1 1550
+      1 1571
+      1 1574
+      1 1580
+      1 1585
+      1 1587
+
+Since more than a dozen non-canonical DwCT appeared over a thousand times each 
+and a majority of the unique non-canonical DwCT appeared only once
+(73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here a slight majority where there is a sequence per specimen and another where there are (presumably) many sequences per specimen. 
+
+---
 We are also interested in all (not filtering out canonical)
 
 	bin/classify-dwct.reb --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab 2> data/locus_voucher_classed_all.err
@@ -140,26 +245,13 @@ We are also interested in all (not filtering out canonical)
 #VN GB comparisons
 
 Initial datasource:
-
+'
 	wc -l data/VN_vouchers.unl
-8216424 ../voucher/VN_vouchers.unl
-
-that is promising:
-head ../voucher/VN_vouchers.unl
-CAS:HERP:1
-CAS:HERP:10
-CAS:HERP:100
-CAS:HERP:1000
-CAS:HERP:10000
-CAS:HERP:100000
-CAS:HERP:100001
-CAS:HERP:100002
-CAS:HERP:100003
-CAS:HERP:100004
+	8216424 data/VN_vouchers.unl
 '
 
-grep -v "::" ../voucher/VN_vouchers.unl | sort > VN_triplets.unl
-grep "::" ../voucher/VN_vouchers.unl  | sort > VN_doublets.unl
+	grep -v "::" data/VN_vouchers.unl | sort > data/VN_triplets.unl
+	grep "::" data/VN_vouchers.unl  | sort > data/VN_doublets.unl
 
 
 ### T-T:
