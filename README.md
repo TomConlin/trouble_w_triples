@@ -134,7 +134,7 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 Represents a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
 lets see if that is true.  
 
-Remember this is a distribution of counts for duplication so the first number is how many non-canonical DwCT appeared the second number times":
+Remember this is a distribution of counts for duplication so the first number is how many non-canonical DwCT have the count which appears second":
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
     73958 1
