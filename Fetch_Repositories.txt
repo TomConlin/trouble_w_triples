@@ -5,6 +5,8 @@ BarCode of Life records will be found at <http://www.barcodinglife.com/index.php
 ```
 curl "http://www.boldsystems.org/index.php/API_Public/specimen?taxon=Chordata&format=tsv" > BOLD_Chordata_`datestamp`.tsv
 ```
+DwCT are expected to be found in two columns, 'sampleid' and 'catalognum'.
+
 
 #GenBank
 GenBank records will be found by FTP-ing the divisions related to vertabrates (around 6.3G gzipped)
@@ -13,6 +15,10 @@ for div in pri rod mam vrt ; do
         wget ftp://bio-mirror.net/biomirror/genbank/gb${div}*.seq.gz
 done
 ```
+
+DwCT like strings may be found in many fields but we limited our anaylisis to those in 'specimen_voucher'
+
+
 
 #VertNet
 
@@ -33,5 +39,6 @@ note: my generating this list used "jq" <https://stedolan.github.io/jq/>
 
 took about an hour (serially) and produced 19G of uncompressed files. 
 
+DwCT may be found in the 'ocurrence_id' column but coverage and uniformity are (were) better if you construct a well fomed DwCT from the three columns 'institutioncode','collectioncode','catalognumber'
 
  
