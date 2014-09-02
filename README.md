@@ -81,7 +81,7 @@ but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)
 	cut -f1 data/locus_voucher_classed_blessed.tab | sort -u | wc -l
 	279,473
 
-leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.08% unique.  
+leaving 2,583 locus with alternative (or duplicate) DwCT (back up to 99.08% unique).  
 
 
 ### Report
@@ -93,9 +93,9 @@ but the main classes of issues can be seen in the error flag returned.
 * an odd error flag means syntactic issues exist
 * an odd error flag greater than one means both type of issues exist
 
-an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
+An error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
-and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
+and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts: (TODO: fix & rerun)
 
 	cat data/locus_voucher_x_classed_blessed.tab | wc -l
 	282,056
@@ -131,13 +131,13 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 
 
   282,056 / 116,909 = 2.412
-Represents a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
+Appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
 lets see if that is true.  
 
-Remember this is a distribution of counts for duplication so the first number is how many non-canonical DwCT appeared the second number times":
+Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times":
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
-    73958 1
+    73958 1  (unique non-canonical DwCT)
     18999 2
      8075 3
      4982 4
@@ -227,11 +227,11 @@ Remember this is a distribution of counts for duplication so the first number is
       1 1587
 
 Since a couple dozen non-canonical DwCT appeared around a thousand times each 
-and a majority of the unique non-canonical DwCT appeared only once
-(73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is a sequence per specimen and another where there are (presumably) many sequences per specimen. 
+and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and another where there are __many__ sequences per specimen. 
 
 ---
-####We are also interested in all DwCT (not filtering out canonical):
+####We are also interested in all DwCT (without filtering out canonical):
+
 
 	bin/classify-dwct.reb --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab 2> data/locus_voucher_classed_all.err
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab >  data/locus_voucher_classed_blessed_all.tab
