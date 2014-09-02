@@ -38,8 +38,7 @@ or maybe:
 if you are going to stare at the originals much.  
 
 ## GenBank
-When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out.  
-here I am using an '_x' to in the file names to indicate canonical DwD have been removed
+When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out. Here I am using an '_x' to in the file names to indicate canonical DwCT have been removed
 ### Filter out canonical vouchers:
 	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
 	wc -l data/locus_voucher_x.tab  
@@ -51,21 +50,21 @@ check if the locus are a Primary Key (unique):
 	585159
 
 
-LOCUS is not quite a primary key in this case. ~ 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
+LOCUS is not quite a primary key in this case. About 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
 #### Classify:
 	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
 	wc -l data/locus_voucher_x_classed.tab
 	433782
 
-The error file has attempts which could not be parsed:
+The error file will have attempts which could not be parsed:
 
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
 
 just this one without a viable IC.  
 
-The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:..
+The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:
 
 	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l
 	423829  
@@ -73,8 +72,8 @@ The classification process allows for multiple DwCT per record, so the number of
 We do not know how many of the original ~100 duplications made it in to this set of duplications
 but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
-#### Filter for known Institution codes:
-	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
+#### Filter for known Institution codes:  
+	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" < data/locus_voucher_x_classed.tab > data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
 	282,056 data/locus_voucher_classed_blessed.tab
 	
@@ -83,8 +82,7 @@ but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)
 
 leaving 2,583 locus with alternative (or duplicate) DwCT (back up to 99.08% unique).  
 
-
-### Report
+### Report  
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main classes of issues can be seen in the error flag returned.
@@ -130,8 +128,7 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 	116,909 
 
 
-  282,056 / 116,909 = 2.412
-Appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
+  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
 
 Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times"
 
