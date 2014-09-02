@@ -270,7 +270,7 @@ Initial datasource:
 	join -11 -22 data/VN_doublets.unl data/locus_voucher_doublets_all.tab  | wc -l
 	0
 
-not surprising, VN only has a handful of doublets:  
+not surprising, VN only has a handful of doublets:    
 	cut -f1 -d \:  data/VN_doublets.unl | uniq
 	TTRS
 	grep "TTRS::"  data/locus_voucher_doublets_all.tab
@@ -306,7 +306,6 @@ VN doublets confirmed for not existing in GB doublets.
 
 	grep "TTRS:"  data/locus_voucher_triplets_all.tab
 	#just checking if the institution with VN doublets appears in GB triples. it does not.  
-
 
 #BOLD GB comparisons  
 
