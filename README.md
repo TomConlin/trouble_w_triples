@@ -3,12 +3,12 @@ This README is an attempt to replicate processes occurring on a local server dur
 To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
 (You will need more disk storage space than this Docker image has.)  
 
-There are many excellent tutorials on starting up a Docker image which will amount to installing Docker then issuing a variant (as root or with sudo) of:
-
+There are many excellent tutorials on starting up a Docker container which will amount to installing Docker then issuing a variant of:
+'''
    docker pull tomc/trouble_w_triples
-   docker run -i -t timc/trouble_w_triples:initial /bin/bash
-
-the remainder of this text assumes you are at the command line within the Docker image.
+   docker run -i -t tomc/trouble_w_triples:initial /bin/bash
+'''
+the remainder of this text assumes you are at the command prompt within the Docker container.
 
 By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
 
@@ -18,7 +18,7 @@ By only keeping the fields from the repositories actually needed to replicate th
 	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions
 	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs
 
-The gzipped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
+The gzipped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive. 
 
 The easiest way to begin processing this data is with 'zcat', as in:
 
@@ -38,8 +38,8 @@ or maybe:
 if you are going to stare at the originals much.  
 
 ## GenBank
-When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted/filtered out.  
-
+When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out.  
+here I am using an '_x' to in the file names to indicate canonical DwD have been removed
 ### Filter out canonical vouchers:
 	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
 	wc -l data/locus_voucher_x.tab  
@@ -51,7 +51,7 @@ check if the locus are a Primary Key (unique):
 	585159
 
 
-LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
+LOCUS is not quite a primary key in this case. ~ 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
 #### Classify:
 	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
@@ -71,7 +71,7 @@ The classification process allows for multiple DwCT per record, so the number of
 	423829  
 
 We do not know how many of the original ~100 duplications made it in to this set of duplications
-but there are now 9,953 duplications on this parsed side. (97.7% unique)  
+but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
 #### Filter for known Institution codes:
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
