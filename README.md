@@ -131,10 +131,9 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 
 
   282,056 / 116,909 = 2.412
-Appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
-lets see if that is true.  
+Appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
 
-Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times":
+Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times"
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
     73958 1  (unique non-canonical DwCT)
@@ -227,7 +226,7 @@ Remember this next command produces a distribution of counts for duplications, s
       1 1587
 
 Since a couple dozen non-canonical DwCT appeared around a thousand times each 
-and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and another where there are __many__ sequences per specimen. 
+and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and a minority where there are __many__ sequences per specimen with a few stragglers in between. 
 
 ---
 ####We are also interested in all DwCT (without filtering out canonical):
@@ -271,7 +270,7 @@ Initial datasource:
 	join -11 -22 data/VN_doublets.unl data/locus_voucher_doublets_all.tab  | wc -l
 	0
 
-not surprising, VN only has a handful of doublets:
+not surprising, VN only has a handful of doublets:  
 	cut -f1 -d \:  data/VN_doublets.unl | uniq
 	TTRS
 	grep "TTRS::"  data/locus_voucher_doublets_all.tab
@@ -311,7 +310,6 @@ just checking if the institution with VN doublets appears in GB triples. it does
 
 #BOLD GB comparisons
 
-
 	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab`
   
 	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab`  
@@ -326,20 +324,15 @@ just checking if the institution with VN doublets appears in GB triples. it does
 
 #### T-D:
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
 	69
 
 #### T-D!:
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | cut -f1  -d ' '| sort -u | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
 	30
 
 
 #### D-D:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
 	283,875  ... that is a scary number
 	
 	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
