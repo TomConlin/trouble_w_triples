@@ -279,6 +279,7 @@ VN doublets confirmed for not existing in GB doublets.
 
 ### treat VN triplets as doublets: (omit the collection code)  
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
+
 	head data/VN_triplets_gutted.unl
 	CAS::1
 	CAS::1
@@ -304,34 +305,33 @@ VN doublets confirmed for not existing in GB doublets.
 	58116
 
 	grep "TTRS:"  data/locus_voucher_triplets_all.tab
+	#just checking if the institution with VN doublets appears in GB triples. it does not.  
 
-just checking if the institution with VN doublets appears in GB triples. it does not.
 
+#BOLD GB comparisons  
 
-#BOLD GB comparisons
-
-	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab`
+	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab
   
 	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab`  
 
-#### T-T:
+#### T-T:  
 	join -j2 -t '\\t' data/ID_all_triplets.tab data/locus_voucher_triplets_all.tab  | wc -l
 	67
 
-#### T-T!:
+#### T-T!:  
 	join -j2 data/ID_all_triplets.tab data/locus_voucher_triplets_all.tab | cut -f1 -d ' ' | sort -u |wc -l
 	60
 
-#### T-D:
+#### T-D:  
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | wc -l
 	69
 
-#### T-D!:
+#### T-D!:  
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | cut -f1  -d ' '| sort -u | wc -l
 	30
 
 
-#### D-D:
+#### D-D:  
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
 	283,875  ... that is a scary number
 	
@@ -376,11 +376,10 @@ just checking if the institution with VN doublets appears in GB triples. it does
 ahh good! the old spaces within identifiers ...
 2910202   INIDEP::T 0224
 
-# Ctrl-v<tab> the -t 
-join -j2 -t'' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-join: file 1 is not in sorted order
-42975
 
+	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
+	42975
+	# note there is a  Ctrl-v<tab>  within the tics of -t '' which will not paste into a command line 
 
 #### D-D!:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
