@@ -4,10 +4,10 @@ To replicate this process with current data from the three repositories instead 
 (You will need more disk storage space than this Docker image has.)  
 
 There are many excellent tutorials on starting up a Docker container which will amount to installing Docker then issuing a variant of:
-'''
+```
    docker pull tomc/trouble_w_triples
    docker run -i -t tomc/trouble_w_triples:initial /bin/bash
-'''
+```
 the remainder of this text assumes you are at the command prompt within the Docker container.
 
 By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
@@ -250,37 +250,25 @@ and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,9
 #VN GB comparisons
 
 Initial datasource:
-'''
+```
 	wc -l data/VN_vouchers.unl
 	8216424 data/VN_vouchers.unl
 
 	grep -v "::" data/VN_vouchers.unl | sort > data/VN_triplets.unl
 	grep "::" data/VN_vouchers.unl  | sort > data/VN_doublets.unl
 
-'''
-### T-T:
-	join -11 -22 data/VN_triplets.unl locus_voucher_triplets_all.tab  | wc -l
-	join: file 1 is not in sorted order
-	4571   (no change with explicit tab)
+```
+### T-T: (triple to triple comparison)
+	join -11 -22 data/VN_triplets.unl data/locus_voucher_triplets_all.tab  | wc -l
+	4571
 	
-	sort -c -k2,2 -t $'\t' data/VN_triplets.unl
-	sort -c data/VN_triplets.unl
-
-sigh, these sort incongruities (w/mixed case UTF8) get old.
-they may not be sorted w.r.t some collation scheme
-but they are ordered by the same rules
-(last time I spent a day & the effect was negligible)
-
-
-#### T-T!:
-	join -11 -22 data/VN_triplets.unl locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
-	join: file 1 is not in sorted order
+#### T-T!: (unique! triple to triple comparison)
+	join -11 -22 data/VN_triplets.unl data/locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
 	4571
 
 
-#### D-D:
-	join -11 -22 data/VN_doublets.unl locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
+#### D-D: (doublet to doublet comparison)
+	join -11 -22 data/VN_doublets.unl data/locus_voucher_doublets_all.tab  | wc -l
 	0
 
 not surprising, VN only has a handful of doublets:
@@ -288,9 +276,9 @@ not surprising, VN only has a handful of doublets:
 	TTRS
 	grep "TTRS::"  data/locus_voucher_doublets_all.tab
 
-VN doublets confirmed for nothing.  
+VN doublets confirmed for not existing in GB doublets.  
 
-### treat VN triplets as doublets:
+### treat VN triplets as doublets: (omit the collection code)
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
 	head data/VN_triplets_gutted.unl
 	CAS::1
@@ -311,16 +299,14 @@ VN doublets confirmed for nothing.
 	  5682825 data/VN_triplets_gutted_distinct.unl
 	
 	join -11 -22 data/VN_triplets_gutted.unl data/locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
-	104027  (no change with explicit tab)
+	104027
 	
-	join -11 -22 VN_triplets_gutted_distinct.unl locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
+	join -11 -22 data/VN_triplets_gutted_distinct.unl data/locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
 	58116
-	grep "TTRS:"  locus_voucher_triplets_all.tab
 
+	grep "TTRS:"  data/locus_voucher_triplets_all.tab
+
+just checking if the institution with VN doublets appears in GB triples. it does not.
 ========
 
 #BOLD GB comparisons
