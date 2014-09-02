@@ -312,7 +312,7 @@ VN doublets confirmed for not existing in GB doublets.
 
 	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab
   
-	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab`  
+	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab  
 
 #### T-T:  
 	join -j2 -t '\\t' data/ID_all_triplets.tab data/locus_voucher_triplets_all.tab  | wc -l
@@ -333,7 +333,7 @@ VN doublets confirmed for not existing in GB doublets.
 
 #### D-D:  
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	283,875  ... that is a scary number
+	283,875  #... that is a scary number
 	
 	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
 	    288 SAIAB::ES08
@@ -360,7 +360,6 @@ VN doublets confirmed for not existing in GB doublets.
 	   1486 LSUMZ::B37257
 	
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
-	join: file 2 is not in sorted order
 	 221778 INIDEP::T
 	  16426 ZMMU::SVK
 	    858 NME::A
@@ -383,7 +382,6 @@ ahh good! the old spaces within identifiers ...
 
 #### D-D!:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
-	join: file 2 is not in sorted order
 	27,936
 	
 	sed 's|:[^:]*:|::|g' data/locus_voucher_triplets_all.tab  | sort > data/locus_voucher_triplets_all_gutted.tab
@@ -400,23 +398,20 @@ ahh good! the old spaces within identifiers ...
 
 #### T-T:
 	join -12 -21  data/ID_all_triplets.tab  data/VN_triplets.unl | wc -l
-	join: file 2 is not in sorted order
 	103   checked w/explicit tab: same
 
 #### T-D:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl |wc -l
-	join: file 2 is not in sorted order
-	30,161 checked w/explicit tab: same
+	30,161 
 
 #### T-D!:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
-	join: file 2 is not in sorted order
+
 	18,766
 
 #### D-T:
 	join -12 -21  data/ID_all_triplets_gutted.tab  data/VN_doublets.unl |wc -l
-	join: file 1 is not in sorted order
-	0     not checked as it ain't getting no smaller
+	0     # not checked as it ain't getting no smaller
 
 #### D-D:
 	join -12 -21  data/ID_all_doublets.tab data/VN_doublets.unl |wc -l
