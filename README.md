@@ -277,7 +277,7 @@ not surprising, VN only has a handful of doublets:
 
 VN doublets confirmed for not existing in GB doublets.  
 
-### treat VN triplets as doublets: (omit the collection code)
+### treat VN triplets as doublets: (omit the collection code)  
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
 	head data/VN_triplets_gutted.unl
 	CAS::1
@@ -306,7 +306,7 @@ VN doublets confirmed for not existing in GB doublets.
 	grep "TTRS:"  data/locus_voucher_triplets_all.tab
 
 just checking if the institution with VN doublets appears in GB triples. it does not.
-========
+
 
 #BOLD GB comparisons
 
