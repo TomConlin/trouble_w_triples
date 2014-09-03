@@ -102,39 +102,40 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 	cat data/locus_voucher_x_classed_blessed.tab | wc -l
 	282,056
 
+The next command returns how many non-canonical DwCT were assigned which classification
+classifications are ANDed (summed) powers of two
+
 	cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
 	 
 	 167399 17
-	  				93903 16
+	  93903 16			# even
 	  10365 19
 	   6724 265
 	   1349 1
 	    783 41
-	    635 0
+	    635 0			# these should not be here    
 	    444 135
 	    378 133
-	     			34 264
+	     34 264			# even
 	     24 267
 	     10 3
-	      			7 18
+	      7 18			# even
 	      1 63
 	
 	--------------------------------
 		188,112		93,944
 
-	188,112 syntactic  	( 1,984 only)  
-	280,075 semantic    (93,947 only) 
+	188,112 syntactic
+	280,075 semantic
 	186,128 both		 
-
-
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab | sort -u | wc -l
 	116,909 
 
 
-  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
+Hmm,  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
 
-Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times"
+Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times:    
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
     73958 1  (unique non-canonical DwCT)
@@ -229,7 +230,7 @@ Remember this next command produces a distribution of counts for duplications, s
 Since a couple dozen non-canonical DwCT appeared around a thousand times each 
 and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and a minority where there are __many__ sequences per specimen with a few stragglers in between. 
 
----
+
 ####We are also interested in all DwCT (without filtering out canonical):
 
 
