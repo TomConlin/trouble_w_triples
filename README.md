@@ -280,7 +280,7 @@ not surprising, VN only has a handful of doublets:
 
 VN doublets confirmed for not existing in GB doublets.  
 
-### treat VN triplets as doublets: (omit the collection code)  
+####Treat VN triplets as doublets: (omit the collection code)  
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
 
 	head data/VN_triplets_gutted.unl
@@ -310,7 +310,7 @@ VN doublets confirmed for not existing in GB doublets.
 	grep "TTRS:"  data/locus_voucher_triplets_all.tab
 	#just checking if the institution with VN doublets appears in GB triples. it does not.  
 
-#BOLD GB comparisons  
+#BOLD GB comparisons:  
 
 	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab
   
@@ -404,7 +404,7 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 
 #### T-T:
 	join -12 -21  data/ID_all_triplets.tab  data/VN_triplets.unl | wc -l
-	103   checked w/explicit tab: same
+	103
 
 #### T-D:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl |wc -l
@@ -412,26 +412,22 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 
 #### T-D!:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
-
 	18,766
 
 #### D-T:
 	join -12 -21  data/ID_all_triplets_gutted.tab  data/VN_doublets.unl |wc -l
-	0     # not checked as it ain't getting no smaller
+	0     # not checking for unique as it ain't getting no smaller
 
 #### D-D:
 	join -12 -21  data/ID_all_doublets.tab data/VN_doublets.unl |wc -l
 	0
 
-
-=========
 =========
 ## All Matches
 
-For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact or whatever.   
+For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact, natural/coerced or whatever.   
  
-
-We will classify BOLD's catalognum & sampleid then filter on IC then merge (only keep one copy where the overlap):  
+We will classify BOLD's catalognum & sampleid columns, filter on IC then merge (only keep one copy where the columns agree):  
 
 	bin/classify-dwct.reb --args "-i data/ID_sampleid.tab" > data/ID_sampleid_classified_all.tab 2> data/ID_sampleid_classified_all.err 
 	bin/classify-dwct.reb --args "-i data/ID_catalognum.tab" > data/ID_catalognum_classified_all.tab 2> data/ID_catalognum_classified_all.err
@@ -442,23 +438,23 @@ Filter for blessed IC:
 	bin/filter_known_ic.awk -v "FILTER=rawdata/GenBankII/IC_knownfilter.list" <  data/ID_catalognum_classified_all.tab >  data/ID_catalognum_classified_blessed_all.tab
 	
 	comm -12 data/ID_catalognum_classified_blessed_all.tab data/ID_sampleid_classified_blessed_all.tab | wc -l
-	2248 (including ID and classification which don't matter)
+	2,248 (including ID and classification which don't matter)
 	
 	cut -f2 data/ID_catalognum_classified_blessed_all.tab | sort >  data/catalognum_alldone.list
 	cut -f2 data/ID_sampleid_classified_blessed_all.tab | sort >   data/sampleid_alldone.list
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list | wc -l
-	2280	# meh
+	2,280	# meh.  underwhelming number of DwCT given in two columns of the same specimen record agree (>90% don't).
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list > data/shared_alldone.list
 	comm -13  data/catalognum_alldone.list data/sampleid_alldone.list > data/sampleid_only_alldone.list
 	comm -23  data/catalognum_alldone.list data/sampleid_alldone.list > data/catalognum_only_alldone.list
 	
 	wc -l data/shared_alldone.list data/sampleid_only_alldone.list data/catalognum_only_alldone.list
-	  2280 data/shared_alldone.list
-	 37701 data/sampleid_only_alldone.list
-	 25299 data/catalognum_only_alldone.list
-	 65280 total                          that is up about 600
+	  2,280 data/shared_alldone.list
+	 37,701 data/sampleid_only_alldone.list
+	 25,299 data/catalognum_only_alldone.list
+	 65,280 total                          that is up about 600
 	
 	cat data/shared_alldone.list data/sampleid_only_alldone.list data/catalognum_only_alldone.list |sort > data/bold_dwct_all.list
 	sort -u  data/bold_dwct_all.list | wc -l
@@ -529,14 +525,15 @@ yep.
      290234 data/g-v.list
     8212508 data/v-g.list
 
-Produce a new set of doublets from the triplets which the old natural doublets can try to match. 
+Produce a new set of doublets from the triplets which the existing natural doublets can try to match. 
 The (natural) ones that matched the first time are already merged so can't be recounted now.:
  
 	cat data/bold_genbank_exact.list data/g-b.list | sed 's/:[^:]*:/::/g'| sort > data/bgUg-b_doublet.list
 	cat data/bold_vn_exact.list data/v-b.list | sed 's/:[^:]*:/::/g' | sort > data/bvUv-b_doublet.list
 	cat data/genbank_vertnet_exact.list data/v-g.list | sed 's/:[^:]*:/::/g' | sort > data/gvUv-g_doublet.list
 
-	#head data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
+	head data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
+
 	wc -l data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
 	   292453 data/bgUg-b_doublet.list
 	  8214727 data/bvUv-b_doublet.list
