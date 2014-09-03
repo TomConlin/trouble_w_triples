@@ -391,7 +391,7 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 	
 	sed 's|:[^:]*:|::|g' data/locus_voucher_triplets_all.tab  | sort > data/locus_voucher_triplets_all_gutted.tab
 
-### D-T:
+#### D-T:
 	join -j2 data/reclassify/ID_all_.tab data/locus_voucher_doublets_all_gutted.tab | wc -l
 	0
 
@@ -425,7 +425,7 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 
 =========
 =========
-# All Matches
+## All Matches
 
 For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact or whatever.   
  
@@ -509,7 +509,7 @@ yep.
 
 ----------------------------------------------------------------------------------------------------
 
-#### Inexact (only one or the other being a natural doublet)
+### Inexact (only one or the other being a natural doublet)
 
 	comm -23 data/bold_dwct_all.list data/genbank_dwct_all.list  > data/b-g.list
 	comm -23 data/bold_dwct_all.list data/VN_triplets.unl  > data/b-v.list
@@ -579,27 +579,26 @@ The (natural) ones that matched the first time are already merged so can't be re
 	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet_match_II_all.list
 
 	wc -l data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list data/genbank_vernet_match_II_all.list
-	   35396 data/bold_genbank_match_II_all.list                                    ********************
-	   18303 data/bold_vernet_match_II_all.list                                     ********************
-	   41974 data/genbank_vernet_match_II_all.list                                  ********************
+	   35396 data/bold_genbank_match_II_all.list                ********************
+	   18303 data/bold_vernet_match_II_all.list                 ********************
+	   41974 data/genbank_vernet_match_II_all.list              ********************
 	   95673 total
 
 Find all matches in common
 
 	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list > data/bold_genbank_vertnet_match_II_all
  	wc -l data/bold_genbank_vertnet_match_II_all
-	16,048   															          ********************  
+	16,048   													********************  
 
-____________________________________________________________________________________________________
 
-####if we only want to count unique matches:
+
+#### Only unique matches:  
 	sort -u  data/genbank_vernet_match_II_all.list | wc -l
+	35,280
 	sort -u  data/bold_vernet_match_II_all.list | wc -l
-	sort -u  data/bold_genbank_match_II_all.list | wc -l		
+	17,737
+	sort -u  data/bold_genbank_match_II_all.list | wc -l
+	3,1139		
 	sort -u  data/bold_genbank_vertnet_match_II_all | wc -l
-
-	35280
-	17737
-	31139
-	15847 
+	15,847 
 
