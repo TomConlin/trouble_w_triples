@@ -334,8 +334,12 @@ VN doublets confirmed for not existing in GB doublets.
 
 #### D-D:  
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	283,875  #... that is a scary number
-	
+	283,875  #... that is a scary big number. 
+
+What causes so many doublet matches here?
+ * check the individual components 
+ * check the union
+
 	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
 	    288 SAIAB::ES08
 	    115 SAIAB::ES07
@@ -351,7 +355,7 @@ VN doublets confirmed for not existing in GB doublets.
 	cut -f2  data/locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head 
 	   1587 LSUMZ::B927
 	   1585 LSUMZ::B1980
-	  1580 LSUMZ::B28330
+	   1580 LSUMZ::B28330
 	   1574 LSUMZ::B37197
 	   1571 LSUMZ::B5354
 	   1550 LSUMZ::B7513
@@ -373,13 +377,14 @@ VN doublets confirmed for not existing in GB doublets.
 	    192 SIO::93-298
 
 
-ahh good! the old spaces within identifiers ...
-2910202   INIDEP::T 0224
+ahh the old spaces within an identifier trick ...
+   INIDEP::T 0224  (and it's ilk ) need to become "INIDEP::T 0224" not "INIDEP::T" mumble mumble
 
 
 	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	42975
-	# note there is a  Ctrl-v<tab>  within the tics of -t '' which will not paste into a command line 
+	42,975			# this is much more believable than 283,875
+					# note there is a  Ctrl-v<tab>  within the tics of -t '' 
+					# which will not paste into a command line. 
 
 #### D-D!:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
@@ -431,7 +436,7 @@ We will classify BOLD's catalognum & sampleid then filter on IC then merge (only
 	bin/classify-dwct.reb --args "-i data/ID_sampleid.tab" > data/ID_sampleid_classified_all.tab 2> data/ID_sampleid_classified_all.err 
 	bin/classify-dwct.reb --args "-i data/ID_catalognum.tab" > data/ID_catalognum_classified_all.tab 2> data/ID_catalognum_classified_all.err
 
-filter for blessed IC:  
+Filter for blessed IC:  
 
 	bin/filter_known_ic.awk -v "FILTER=rawdata/IC_knownfilter.list" <  data/ID_sampleid_classified_all.tab >  data/ID_sampleid_classified_blessed_all.tab
 	bin/filter_known_ic.awk -v "FILTER=rawdata/GenBankII/IC_knownfilter.list" <  data/ID_catalognum_classified_all.tab >  data/ID_catalognum_classified_blessed_all.tab
@@ -459,11 +464,11 @@ filter for blessed IC:
 	sort -u  data/bold_dwct_all.list | wc -l
 	57225                                    unique BOLD DwCT available
 
-bolds list of 65,280 effective DwCT 
+BOLD's list of 65,280 effective DwCT   
 	data/bold_dwct_all.list
 
 
-find ALL effective GenBank specimen_voucher DwCT: 
+Find ALL effective GenBank specimen_voucher DwCT: 
 
 	bin/classify-dwct.reb  --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab  2> data/locus_voucher_classed_all.err
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab  >  data/locus_voucher_classed_blessed_all.tab
@@ -476,18 +481,18 @@ find ALL effective GenBank specimen_voucher DwCT:
 	sort -u data/genbank_dwct_all.list | wc -l 
 	123,111
 
-GenBank's list of 292,453 effective DwCT 
+GenBank's list of 292,453 effective DwCT:  
 
 	data/genbank_dwct_all.list
 
 
-VN should be easy 
+VN should be easy:  
 
 	sort -c data/VN_triplets.unl
 yep.
 
 ----------------------------------------------------------------------------------
-### exact (triplet or doublet)
+### Exact (triplet or doublet)
 
 	comm  -12 data/bold_dwct_all.list data/genbank_dwct_all.list  > data/bold_genbank_exact.list
 	comm  -12 data/bold_dwct_all.list data/VN_triplets.unl  > data/bold_vn_exact.list
