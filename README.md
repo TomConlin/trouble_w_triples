@@ -338,7 +338,7 @@ VN doublets confirmed for not existing in GB doublets.
 
 What causes so many doublet matches here?
  * check the individual components 
- * check the union
+ * check the union  
 
 	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
 	    288 SAIAB::ES08
@@ -352,7 +352,7 @@ What causes so many doublet matches here?
 	     35 SAIAB::ES06
 	     27 UAIC::14963.01
 
-	cut -f2  data/locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head 
+	cut -f2  data/locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head  
 	   1587 LSUMZ::B927
 	   1585 LSUMZ::B1980
 	   1580 LSUMZ::B28330
@@ -364,7 +364,7 @@ What causes so many doublet matches here?
 	   1487 LSUMZ::B36554
 	   1486 LSUMZ::B37257
 	
-	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
+	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head  
 	 221778 INIDEP::T
 	  16426 ZMMU::SVK
 	    858 NME::A
