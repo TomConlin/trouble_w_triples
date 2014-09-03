@@ -3,12 +3,12 @@ This README is an attempt to replicate processes occurring on a local server dur
 To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
 (You will need more disk storage space than this Docker image has.)  
 
-There are many excellent tutorials on starting up a Docker image which will amount to installing Docker then issuing a variant (as root or with sudo) of:
-
+There are many excellent tutorials on starting up a Docker container which will amount to installing Docker then issuing a variant of:
+```
    docker pull tomc/trouble_w_triples
-   docker run -i -t timc/trouble_w_triples:initial /bin/bash
-
-the remainder of this text assumes you are at the command line within the Docker image.
+   docker run -i -t tomc/trouble_w_triples:initial /bin/bash
+```
+the remainder of this text assumes you are at the command prompt within the Docker container.
 
 By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
 
@@ -18,7 +18,7 @@ By only keeping the fields from the repositories actually needed to replicate th
 	locus_voucher.tab.gz					# the locus and specimen_voucher field from vertebrate GenBank divisions
 	sampleid_catalognum_bold_gbacc.tab.gz	# four fields from BOLD chordate records 2 might have DwCTs
 
-The gzipped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive.  
+The gzipped files are write protected so we always have a pristine copy to fall back on if our experiments become unintentionally destructive. 
 
 The easiest way to begin processing this data is with 'zcat', as in:
 
@@ -38,8 +38,7 @@ or maybe:
 if you are going to stare at the originals much.  
 
 ## GenBank
-When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted/filtered out.  
-
+When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out. Here I am using an '_x' to in the file names to indicate canonical DwCT have been removed
 ### Filter out canonical vouchers:
 	grep -Ev  "[A-Z]{2,6}\:[A-Z][a-z]+\:.*[0-9]+.*" data/locus_voucher.tab > data/locus_voucher_x.tab   
 	wc -l data/locus_voucher_x.tab  
@@ -51,40 +50,39 @@ check if the locus are a Primary Key (unique):
 	585159
 
 
-LOCUS is not quite a PK. ~ 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
+LOCUS is not quite a primary key in this case. About 100 duplicated locus IDs, but no worries, we are just checking out of curiosity.  (99.98% unique)  
 
 #### Classify:
 	bin/classify-dwct.reb --args "-i data/locus_voucher_x.tab" > data/locus_voucher_x_classed.tab 2> data/locus_voucher_x_classed.err
 	wc -l data/locus_voucher_x_classed.tab
 	433782
 
-The error file has attempts which could not be parsed:
+The error file will have attempts which could not be parsed:
 
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
 
 just this one without a viable IC.  
 
-The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:..
+The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:
 
 	cut -f1 data/locus_voucher_x_classed.tab | sort -u | wc -l
 	423829  
 
 We do not know how many of the original ~100 duplications made it in to this set of duplications
-but there are now 9,953 duplications on this parsed side. (97.7% unique)  
+but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
-#### Filter for known Institution codes:
-	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_x_classed.tab >  data/locus_voucher_x_classed_blessed.tab
+#### Filter for known Institution codes:  
+	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" < data/locus_voucher_x_classed.tab > data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
 	282,056 data/locus_voucher_classed_blessed.tab
 	
 	cut -f1 data/locus_voucher_classed_blessed.tab | sort -u | wc -l
 	279,473
 
-leaving 2,583 locus with alternative (or duplicate) DwCT which is back up to 99.08% unique.  
+leaving 2,583 locus with alternative (or duplicate) DwCT (back up to 99.08% unique).  
 
-
-### Report
+### Report  
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main classes of issues can be seen in the error flag returned.
@@ -93,9 +91,9 @@ but the main classes of issues can be seen in the error flag returned.
 * an odd error flag means syntactic issues exist
 * an odd error flag greater than one means both type of issues exist
 
-an error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
+An error flag of 0 would be no errors, but we filtered for canonical when we began so there should not be any
 the zeros here turn out to be cases where they only gave one of the two colons 
-and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts:
+and I took a foolish shortcut and figured if they were using colons in one part then they were using colons in both parts: (TODO: fix & rerun)
 
 	cat data/locus_voucher_x_classed_blessed.tab | wc -l
 	282,056
@@ -130,14 +128,12 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 	116,909 
 
 
-  282,056 / 116,909 = 2.412
-Represents a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice
-lets see if that is true.  
+  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
 
-Remember this is a distribution of counts for duplication so the first number is how many non-canonical DwCT have the count which appears second":
+Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times"
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
-    73958 1
+    73958 1  (unique non-canonical DwCT)
     18999 2
      8075 3
      4982 4
@@ -227,11 +223,11 @@ Remember this is a distribution of counts for duplication so the first number is
       1 1587
 
 Since a couple dozen non-canonical DwCT appeared around a thousand times each 
-and a majority of the unique non-canonical DwCT appeared only once
-(73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is a sequence per specimen and another where there are (presumably) many sequences per specimen. 
+and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and a minority where there are __many__ sequences per specimen with a few stragglers in between. 
 
 ---
-####We are also interested in all DwCT (not filtering out canonical):
+####We are also interested in all DwCT (without filtering out canonical):
+
 
 	bin/classify-dwct.reb --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab 2> data/locus_voucher_classed_all.err
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab >  data/locus_voucher_classed_blessed_all.tab
@@ -250,48 +246,37 @@ and a majority of the unique non-canonical DwCT appeared only once
 #VN GB comparisons
 
 Initial datasource:
-'''
+```
 	wc -l data/VN_vouchers.unl
 	8216424 data/VN_vouchers.unl
 
 	grep -v "::" data/VN_vouchers.unl | sort > data/VN_triplets.unl
 	grep "::" data/VN_vouchers.unl  | sort > data/VN_doublets.unl
 
-'''
-### T-T:
-	join -11 -22 data/VN_triplets.unl locus_voucher_triplets_all.tab  | wc -l
-	join: file 1 is not in sorted order
-	4571   (no change with explicit tab)
+```
+### T-T: (triple to triple comparison)
+	join -11 -22 data/VN_triplets.unl data/locus_voucher_triplets_all.tab  | wc -l
+	4571
 	
-	sort -c -k2,2 -t $'\t' data/VN_triplets.unl
-	sort -c data/VN_triplets.unl
-
-sigh, these sort incongruities (w/mixed case UTF8) get old.
-they may not be sorted w.r.t some collation scheme
-but they are ordered by the same rules
-(last time I spent a day & the effect was negligible)
-
-
-#### T-T!:
-	join -11 -22 data/VN_triplets.unl locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
-	join: file 1 is not in sorted order
+#### T-T!: (unique! triple to triple comparison)
+	join -11 -22 data/VN_triplets.unl data/locus_voucher_triplets_all.tab  | cut -f1 |sort -u | wc -l
 	4571
 
 
-#### D-D:
-	join -11 -22 data/VN_doublets.unl locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
+#### D-D: (doublet to doublet comparison)
+	join -11 -22 data/VN_doublets.unl data/locus_voucher_doublets_all.tab  | wc -l
 	0
 
-not surprising, VN only has a handful of doublets:
+not surprising, VN only has a handful of doublets:    
 	cut -f1 -d \:  data/VN_doublets.unl | uniq
 	TTRS
 	grep "TTRS::"  data/locus_voucher_doublets_all.tab
 
-VN doublets confirmed for nothing.  
+VN doublets confirmed for not existing in GB doublets.  
 
-### treat VN triplets as doublets:
+### treat VN triplets as doublets: (omit the collection code)  
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
+
 	head data/VN_triplets_gutted.unl
 	CAS::1
 	CAS::1
@@ -311,50 +296,40 @@ VN doublets confirmed for nothing.
 	  5682825 data/VN_triplets_gutted_distinct.unl
 	
 	join -11 -22 data/VN_triplets_gutted.unl data/locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
-	104027  (no change with explicit tab)
+	104027
 	
-	join -11 -22 VN_triplets_gutted_distinct.unl locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
+	join -11 -22 data/VN_triplets_gutted_distinct.unl data/locus_voucher_doublets_all.tab  | cut -f1 | sort -u | wc -l
 	58116
-	grep "TTRS:"  locus_voucher_triplets_all.tab
 
-========
+	grep "TTRS:"  data/locus_voucher_triplets_all.tab
+	#just checking if the institution with VN doublets appears in GB triples. it does not.  
 
-#BOLD GB comparisons
+#BOLD GB comparisons  
 
-
-	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab`
+	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab
   
-	`cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab`  
+	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep "::" | sort -k2,2 > data/ID_all_doublets.tab  
 
-#### T-T:
+#### T-T:  
 	join -j2 -t '\\t' data/ID_all_triplets.tab data/locus_voucher_triplets_all.tab  | wc -l
 	67
 
-#### T-T!:
+#### T-T!:  
 	join -j2 data/ID_all_triplets.tab data/locus_voucher_triplets_all.tab | cut -f1 -d ' ' | sort -u |wc -l
 	60
 
-#### T-D:
+#### T-D:  
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
 	69
 
-#### T-D!:
+#### T-D!:  
 	join -j2 data/ID_all_triplets_gutted.tab data/locus_voucher_doublets_all.tab | cut -f1  -d ' '| sort -u | wc -l
-	join: file 2 is not in sorted order
-	join: file 1 is not in sorted order
 	30
 
 
-#### D-D:
+#### D-D:  
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	join: file 2 is not in sorted order
-	283,875  ... that is a scary number
+	283,875  #... that is a scary number
 	
 	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
 	    288 SAIAB::ES08
@@ -381,7 +356,6 @@ VN doublets confirmed for nothing.
 	   1486 LSUMZ::B37257
 	
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
-	join: file 2 is not in sorted order
 	 221778 INIDEP::T
 	  16426 ZMMU::SVK
 	    858 NME::A
@@ -397,15 +371,13 @@ VN doublets confirmed for nothing.
 ahh good! the old spaces within identifiers ...
 2910202   INIDEP::T 0224
 
-# Ctrl-v<tab> the -t 
-join -j2 -t'' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-join: file 1 is not in sorted order
-42975
 
+	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
+	42975
+	# note there is a  Ctrl-v<tab>  within the tics of -t '' which will not paste into a command line 
 
 #### D-D!:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
-	join: file 2 is not in sorted order
 	27,936
 	
 	sed 's|:[^:]*:|::|g' data/locus_voucher_triplets_all.tab  | sort > data/locus_voucher_triplets_all_gutted.tab
@@ -422,23 +394,20 @@ join: file 1 is not in sorted order
 
 #### T-T:
 	join -12 -21  data/ID_all_triplets.tab  data/VN_triplets.unl | wc -l
-	join: file 2 is not in sorted order
 	103   checked w/explicit tab: same
 
 #### T-D:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl |wc -l
-	join: file 2 is not in sorted order
-	30,161 checked w/explicit tab: same
+	30,161 
 
 #### T-D!:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
-	join: file 2 is not in sorted order
+
 	18,766
 
 #### D-T:
 	join -12 -21  data/ID_all_triplets_gutted.tab  data/VN_doublets.unl |wc -l
-	join: file 1 is not in sorted order
-	0     not checked as it ain't getting no smaller
+	0     # not checked as it ain't getting no smaller
 
 #### D-D:
 	join -12 -21  data/ID_all_doublets.tab data/VN_doublets.unl |wc -l
