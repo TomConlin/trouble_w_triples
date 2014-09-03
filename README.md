@@ -31,13 +31,12 @@ The easiest way to begin processing this data is with 'zcat', as in:
 	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l  
 	216809
 
-or maybe: 
+or since we may want to work with uncompressed copies: 
  
 	zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
 	zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
 	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
 
-if you are going to stare at the originals much.  
 
 ## GenBank
 When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out. Here I am using an '_x' to in the file names to indicate canonical DwCT have been removed
@@ -75,7 +74,7 @@ We do not know how many of the original ~100 duplications made it in to this set
 but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
 #### Filter for known Institution codes: 
-Principal investigators s on this project manually vetted a list of thousands of Institution Codes from to isolate the subset which could house vertebrate collections
+Principal investigators on this project manually vetted a list of thousands of Institution Codes from the "Global Registry of Biorepositories" to isolate the subset they believed could house vertebrate collections hence the "blessed" designation. 
 
   
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" < data/locus_voucher_x_classed.tab > data/locus_voucher_x_classed_blessed.tab
