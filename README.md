@@ -416,22 +416,16 @@ ahh good! the old spaces within identifiers ...
 
 =========
 =========
-For the diagrams I really just want "all matches between sources"   
+For the diagrams I really just want "all matches between sources" irrespective of whether they are canonical, triplet or doublet.   
+ 
 
-But to find the ones common to all three when they are all sliced and diced 
-and needing to be reassembled is not a warm and fuzzy.  
+So classify bold catalognum & sampleid then filter on IC merge but only keep one copy of the overlap:  
 
-... in a sense we would gain some numbers (and accuracy) over the existing
-process since it glosses over corner cases such as if a doublet matched a canonical.  
-
-least work would be to do bold in common with the other two then compare the results in the next round  
-
-
-so classify bold catalognum & sampleid then filter on IC merge but only keep one copy of the overlap:\
 	bin/classify-dwct.reb --args "-i data/ID_sampleid.tab" > data/ID_sampleid_classified_all.tab 2> data/ID_sampleid_classified_all.err 
 	bin/classify-dwct.reb --args "-i data/ID_catalognum.tab" > data/ID_catalognum_classified_all.tab 2> data/ID_catalognum_classified_all.err
 
-filter for blessed IC:
+filter for blessed IC:  
+
 	bin/filter_known_ic.awk -v "FILTER=rawdata/IC_knownfilter.list" <  data/ID_sampleid_classified_all.tab >  data/ID_sampleid_classified_blessed_all.tab
 	bin/filter_known_ic.awk -v "FILTER=rawdata/GenBankII/IC_knownfilter.list" <  data/ID_catalognum_classified_all.tab >  data/ID_catalognum_classified_blessed_all.tab
 	
@@ -442,7 +436,7 @@ filter for blessed IC:
 	cut -f2 data/ID_sampleid_classified_blessed_all.tab | sort >   data/sampleid_alldone.list
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list | wc -l
-	2280	meh
+	2280	# meh
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list > data/shared_alldone.list
 	comm -13  data/catalognum_alldone.list data/sampleid_alldone.list > data/sampleid_only_alldone.list
@@ -462,7 +456,7 @@ bolds list of 65,280 effective DwCT
 	data/bold_dwct_all.list
 
 
-find ALL effective GenBank specimen_voucher DwcT: 
+find ALL effective GenBank specimen_voucher DwCT: 
 
 	bin/classify-dwct.reb  --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab  2> data/locus_voucher_classed_all.err
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab  >  data/locus_voucher_classed_blessed_all.tab
@@ -475,7 +469,7 @@ find ALL effective GenBank specimen_voucher DwcT:
 	sort -u data/genbank_dwct_all.list | wc -l 
 	123,111
 
-GenBanks list of 292,453 effective DwCT 
+GenBank's list of 292,453 effective DwCT 
 
 	data/genbank_dwct_all.list
 
@@ -498,9 +492,9 @@ yep.
   2219 data/genbank_vertnet_exact.list
  34564 total
 
-comm -12  data/bold_genbank_exact.list data/bold_vn_exact.list > data/bold_genbank_vn_exact.list
-wc -l data/bold_genbank_vn_exact.list
-45  --> all UAM:Mamm:xxx
+	comm -12  data/bold_genbank_exact.list data/bold_vn_exact.list > data/bold_genbank_vn_exact.list
+	wc -l data/bold_genbank_vn_exact.list
+	45  --> all UAM:Mamm:xxx
 
 ----------------------------------------------------------------------------------------------------
 
@@ -523,7 +517,8 @@ wc -l data/bold_genbank_vn_exact.list
      290234 data/g-v.list
     8212508 data/v-g.list
 
-force a new set of doublets the old natural doublets can try to match the (natural) ones that matched the first time are already merged so can't be recounted now.:
+Force a new set of doublets which the old natural doublets can try to match. 
+The (natural) ones that matched the first time are already merged so can't be recounted now.:
  
 	cat data/bold_genbank_exact.list data/g-b.list | sed 's/:[^:]*:/::/g'| sort > data/bgUg-b_doublet.list
 	cat data/bold_vn_exact.list data/v-b.list | sed 's/:[^:]*:/::/g' | sort > data/bvUv-b_doublet.list
@@ -539,10 +534,10 @@ force a new set of doublets the old natural doublets can try to match the (natur
 	comm -12 data/b-v.list data/bvUv-b_doublet.list > data/bold_vn_inexact.list
 	comm -12 data/g-v.list data/gvUv-g_doublet.list > data/gb_vn_inexact.list
  
-wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.list
-   466 data/bold_gb_inexact.list
- 18200 data/bold_vn_inexact.list
- 39755 data/gb_vn_inexact.list
+	wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.list
+	   466 data/bold_gb_inexact.list
+	 18200 data/bold_vn_inexact.list
+	 39755 data/gb_vn_inexact.list
 
 -------------------------------------------------------------
 
@@ -565,7 +560,7 @@ wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.li
       0 data/gb_vn_inexact2.list
  
 	comm -12  data/bold_gb_inexact.list data/bold_gb_inexact2.list
-(nothing in common -> good)
+nothing in common is good
 
 	cat data/bold_gb_inexact.list data/bold_gb_inexact2.list data/bold_genbank_exact.list | sort > data/bold_genbank_match_II_all.list
 	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet__match_II_all.list
