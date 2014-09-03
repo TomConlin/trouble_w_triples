@@ -377,13 +377,12 @@ What causes so many doublet matches here?
 	    192 SIO::93-298
 ```
 
-ahh the old spaces within an identifier trick ...
-   INIDEP::T 0224  (and it's ilk ) need to become "INIDEP::T 0224" not "INIDEP::T" mumble mumble
-
+ahh the old spaces within a catalog number trick ...  
+INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP::T" mumble mumble
 
 	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
 	42,975			# this is much more believable than 283,875
-					# note there is a  Ctrl-v<tab>  within the tics of -t '' 
+					# note there is a  Ctrl-v<TAB>  within the tics of -t '' 
 					# which will not paste into a command line. 
 
 #### D-D!:
@@ -428,7 +427,7 @@ ahh the old spaces within an identifier trick ...
 =========
 # All Matches
 
-For the diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact or whatever.   
+For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact or whatever.   
  
 
 We will classify BOLD's catalognum & sampleid then filter on IC then merge (only keep one copy where the overlap):  
@@ -510,7 +509,7 @@ yep.
 
 ----------------------------------------------------------------------------------------------------
 
-#### inexact with only one or the other being a natural doublet
+#### Inexact (only one or the other being a natural doublet)
 
 	comm -23 data/bold_dwct_all.list data/genbank_dwct_all.list  > data/b-g.list
 	comm -23 data/bold_dwct_all.list data/VN_triplets.unl  > data/b-v.list
@@ -529,7 +528,7 @@ yep.
      290234 data/g-v.list
     8212508 data/v-g.list
 
-Force a new set of doublets which the old natural doublets can try to match. 
+Produce a new set of doublets from the triplets which the old natural doublets can try to match. 
 The (natural) ones that matched the first time are already merged so can't be recounted now.:
  
 	cat data/bold_genbank_exact.list data/g-b.list | sed 's/:[^:]*:/::/g'| sort > data/bgUg-b_doublet.list
@@ -538,9 +537,9 @@ The (natural) ones that matched the first time are already merged so can't be re
 
 	#head data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
 	wc -l data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
-   292453 data/bgUg-b_doublet.list
-  8214727 data/bvUv-b_doublet.list
-  8214727 data/gvUv-g_doublet.list  
+	   292453 data/bgUg-b_doublet.list
+	  8214727 data/bvUv-b_doublet.list
+	  8214727 data/gvUv-g_doublet.list  
   
 	comm -12 data/b-g.list data/bgUg-b_doublet.list > data/bold_gb_inexact.list
 	comm -12 data/b-v.list data/bvUv-b_doublet.list > data/bold_vn_inexact.list
@@ -558,36 +557,36 @@ The (natural) ones that matched the first time are already merged so can't be re
 	cat data/genbank_vertnet_exact.list g-v.list | sed 's/:[^:]*:/::/g' | sort > data/gvUg-v_doublet.list
 
 	wc -l data/bgUb-g_doublet.list data/bvUb-v_doublet.list  data/gvUg-v_doublet.list
-    65280 data/bgUb-g_doublet.list
-    65280 data/bvUb-v_doublet.list
-   292453 data/gvUg-v_doublet.list
+	    65280 data/bgUb-g_doublet.list
+	    65280 data/bvUb-v_doublet.list
+	   292453 data/gvUg-v_doublet.list
 
 	comm -12 g-b.list data/bgUb-g_doublet.list > data/bold_gb_inexact2.list
 	comm -12 v-b.list data/bvUb-v_doublet.list > data/bold_vn_inexact2.list
 	comm -12 v-g.list data/gvUg-v_doublet.list > data/gb_vn_inexact2.list
 
 	wc -l data/bold_gb_inexact2.list data/bold_vn_inexact2.list  data/gb_vn_inexact2.list
-   2688 data/bold_gb_inexact2.list
-      0 data/bold_vn_inexact2.list
-      0 data/gb_vn_inexact2.list
+	   2688 data/bold_gb_inexact2.list
+	      0 data/bold_vn_inexact2.list
+	      0 data/gb_vn_inexact2.list
  
 	comm -12  data/bold_gb_inexact.list data/bold_gb_inexact2.list
 nothing in common is good
 
 	cat data/bold_gb_inexact.list data/bold_gb_inexact2.list data/bold_genbank_exact.list | sort > data/bold_genbank_match_II_all.list
-	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet__match_II_all.list
+	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet_match_II_all.list
 
-	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet__match_II_all.list
+	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet_match_II_all.list
 
-wc -l data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list data/genbank_vernet__match_II_all.list
-   35396 data/bold_genbank_match_II_all.list                                     ********************
-   18303 data/bold_vernet__match_II_all.list                                     ********************
-   41974 data/genbank_vernet__match_II_all.list                                  ********************
-   95673 total
+wc -l data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list data/genbank_vernet_match_II_all.list
+	   35396 data/bold_genbank_match_II_all.list                                     ********************
+	   18303 data/bold_vernet_match_II_all.list                                     ********************
+	   41974 data/genbank_vernet_match_II_all.list                                  ********************
+	   95673 total
 
 Find all matches in common
 
-	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list > data/bold_genbank_vertnet_match_II_all
+	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list > data/bold_genbank_vertnet_match_II_all
  	wc -l data/bold_genbank_vertnet_match_II_all
 	16,048   															          ********************  
 
