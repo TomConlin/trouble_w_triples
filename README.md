@@ -1,16 +1,18 @@
 This README is an attempt to replicate processes occurring on a local server during 2013-2014 within this Docker image now.
 
-To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
-(You will need more disk storage space than this Docker image has.)  
+Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons.
+This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
+
+To replicate this process but with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  (You will need more disk storage space than this Docker image has.)  
 
 There are many excellent tutorials on starting up a Docker container which will amount to installing Docker then issuing a variant of:
 ```
    docker pull tomc/trouble_w_triples
    docker run -i -t tomc/trouble_w_triples:initial /bin/bash
 ```
-the remainder of this text assumes you are at the command prompt within the Docker container.
+The remainder of this text assumes you are at the command prompt within the Docker container.  
 
-By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
+By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:  
 
 	ls -1 rawdata/
 	IC_knownfilter.list						# (P.I.) curated list of institution codes
@@ -62,7 +64,7 @@ The error file will have attempts which could not be parsed:
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
 
-just this one without a viable IC.  
+just this one without a viable institution code (IC).  
 
 The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:
 
@@ -72,7 +74,10 @@ The classification process allows for multiple DwCT per record, so the number of
 We do not know how many of the original ~100 duplications made it in to this set of duplications
 but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
-#### Filter for known Institution codes:  
+#### Filter for known Institution codes: 
+Principal investigators s on this project manually vetted a list of thousands of Institution Codes from to isolate the subset which could house vertebrate collections
+
+  
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" < data/locus_voucher_x_classed.tab > data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
 	282,056 data/locus_voucher_classed_blessed.tab
@@ -82,7 +87,7 @@ but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)
 
 leaving 2,583 locus with alternative (or duplicate) DwCT (back up to 99.08% unique).  
 
-### Report  
+### Report 
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main classes of issues can be seen in the error flag returned.
@@ -418,10 +423,10 @@ ahh good! the old spaces within identifiers ...
 =========
 # All Matches
 
-For the diagrams I really just want "all matches between sources" irrespective of whether they are canonical, triplet or doublet.   
+For the diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact or whatever.   
  
 
-So classify bold catalognum & sampleid then filter on IC merge but only keep one copy of the overlap:  
+We will classify BOLD's catalognum & sampleid then filter on IC then merge (only keep one copy where the overlap):  
 
 	bin/classify-dwct.reb --args "-i data/ID_sampleid.tab" > data/ID_sampleid_classified_all.tab 2> data/ID_sampleid_classified_all.err 
 	bin/classify-dwct.reb --args "-i data/ID_catalognum.tab" > data/ID_catalognum_classified_all.tab 2> data/ID_catalognum_classified_all.err
@@ -452,7 +457,7 @@ filter for blessed IC:
 	
 	cat data/shared_alldone.list data/sampleid_only_alldone.list data/catalognum_only_alldone.list |sort > data/bold_dwct_all.list
 	sort -u  data/bold_dwct_all.list | wc -l
-	57225                                    unique bold DwCT available
+	57225                                    unique BOLD DwCT available
 
 bolds list of 65,280 effective DwCT 
 	data/bold_dwct_all.list
@@ -575,10 +580,11 @@ wc -l data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list da
    41974 data/genbank_vernet__match_II_all.list                                  ********************
    95673 total
 
+Find all matches in common
 
 	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list > data/bold_genbank_vertnet_match_II_all
  	wc -l data/bold_genbank_vertnet_match_II_all
-	16,048   ding ding ding that is pretty much the number we needed.          ********************  
+	16,048   															          ********************  
 
 ____________________________________________________________________________________________________
 
@@ -588,8 +594,8 @@ ________________________________________________________________________________
 	sort -u  data/bold_genbank_match_II_all.list | wc -l		
 	sort -u  data/bold_genbank_vertnet_match_II_all | wc -l
 
-35280
-17737
-31139
-15847 
+	35280
+	17737
+	31139
+	15847 
 
