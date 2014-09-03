@@ -339,8 +339,8 @@ VN doublets confirmed for not existing in GB doublets.
 What causes so many doublet matches here?
  * check the individual components 
  * check the union  
-
-	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
+```
+	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head  
 	    288 SAIAB::ES08
 	    115 SAIAB::ES07
 	     76 ECOCH::7192
@@ -375,7 +375,7 @@ What causes so many doublet matches here?
 	    256 PIN::RVV
 	    256 MCZ::335
 	    192 SIO::93-298
-
+```
 
 ahh the old spaces within an identifier trick ...
    INIDEP::T 0224  (and it's ilk ) need to become "INIDEP::T 0224" not "INIDEP::T" mumble mumble
