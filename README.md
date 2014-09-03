@@ -571,15 +571,15 @@ The (natural) ones that matched the first time are already merged so can't be re
 	      0 data/gb_vn_inexact2.list
  
 	comm -12  data/bold_gb_inexact.list data/bold_gb_inexact2.list
-nothing in common is good
+	# nothing in common is good here
 
 	cat data/bold_gb_inexact.list data/bold_gb_inexact2.list data/bold_genbank_exact.list | sort > data/bold_genbank_match_II_all.list
 	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet_match_II_all.list
 
 	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet_match_II_all.list
 
-wc -l data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list data/genbank_vernet_match_II_all.list
-	   35396 data/bold_genbank_match_II_all.list                                     ********************
+	wc -l data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list data/genbank_vernet_match_II_all.list
+	   35396 data/bold_genbank_match_II_all.list                                    ********************
 	   18303 data/bold_vernet_match_II_all.list                                     ********************
 	   41974 data/genbank_vernet_match_II_all.list                                  ********************
 	   95673 total
