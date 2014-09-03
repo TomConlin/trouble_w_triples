@@ -416,6 +416,8 @@ ahh good! the old spaces within identifiers ...
 
 =========
 =========
+# All Matches
+
 For the diagrams I really just want "all matches between sources" irrespective of whether they are canonical, triplet or doublet.   
  
 
