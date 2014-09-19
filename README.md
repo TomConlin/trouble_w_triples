@@ -1,4 +1,6 @@
-This README is an attempt to replicate processes occurring on a local server during 2013-2014 within this Docker image now.
+This README replicates processes occurring on a local server during 2013-2014 within [this Docker container](https://registry.hub.docker.com/u/tomc/trouble_w_triples/)
+
+Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons. This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
 
 To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
 (You will need more disk storage space than this Docker image has.)  
