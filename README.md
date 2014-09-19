@@ -1,6 +1,4 @@
-This README replicates processes occurring on a local server during 2013-2014 within [this Docker container](https://registry.hub.docker.com/u/tomc/trouble_w_triples/)
-
-Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons. This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
+This README replicates processes occurring on a local server during 2013-2014 within [this Docker container](https://registry.hub.docker.com/u/tomc/trouble_w_triples/).
 
 Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons.
 This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
@@ -381,7 +379,7 @@ What causes so many doublet matches here?
 ```
 
 ahh the old spaces within a catalog number trick ...  
-INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP::T" mumble mumble
+**INIDEP::T 0224**  (and it's ilk ) need to be seen as *"INIDEP::T 0224"* not *"INIDEP::T"* **mumble mumble**
 
 	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
 	42,975			# this is much more believable than 283,875
@@ -401,7 +399,6 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 ========
 
 #VN BOLD comparisons
-
 
 
 #### T-T:
@@ -424,7 +421,7 @@ INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP:
 	join -12 -21  data/ID_all_doublets.tab data/VN_doublets.unl |wc -l
 	0
 
-=========
+----------------------------------------------------------------------------
 ## All Matches
 
 For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact, natural/coerced or whatever.   
