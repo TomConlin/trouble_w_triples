@@ -2,17 +2,19 @@ This README replicates processes occurring on a local server during 2013-2014 wi
 
 Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons. This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
 
-To replicate this process with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  
-(You will need more disk storage space than this Docker image has.)  
+Natural history museums and other biodiversity collection repositories/aggregators most commonly identify specimens with a "Darwin Core Triplet" which is an 'institution code' a 'collection code' and a 'catalog number' separated by colons.
+This exercise is to explore how these identifiers work as a means to bring records for the same specimen in different repositories back together.
+
+To replicate this process but with current data from the three repositories instead of the canned snapshots found in the directory 'rawdata' please see the Fetch_repositories.txt.  (You will need more disk storage space than this Docker image has.)  
 
 There are many excellent tutorials on starting up a Docker container which will amount to installing Docker then issuing a variant of:
 ```
    docker pull tomc/trouble_w_triples
    docker run -i -t tomc/trouble_w_triples:initial /bin/bash
 ```
-the remainder of this text assumes you are at the command prompt within the Docker container.
+The remainder of this text assumes you are at the command prompt within the Docker container.  
 
-By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:
+By only keeping the fields from the repositories actually needed to replicate the studies in the triplets paper, the raw data is about 160M uncompressed and about 26M gzipped:  
 
 	ls -1 rawdata/
 	IC_knownfilter.list						# (P.I.) curated list of institution codes
@@ -31,13 +33,12 @@ The easiest way to begin processing this data is with 'zcat', as in:
 	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz | wc -l  
 	216809
 
-or maybe: 
+or since we may want to work with uncompressed copies: 
  
 	zcat rawdata/VN_vouchers.unl.gz > data/VN_vouchers.unl  
 	zcat rawdata/locus_voucher.tab.gz >  data/locus_voucher.tab  
 	zcat rawdata/sampleid_catalognum_bold_gbacc.tab.gz > data/sampleid_catalognum_bold_gbacc.tab  
 
-if you are going to stare at the originals much.  
 
 ## GenBank
 When we are only looking at alternatively represented DwCT, the canonical DwCT can be counted then filtered out. Here I am using an '_x' to in the file names to indicate canonical DwCT have been removed
@@ -64,7 +65,7 @@ The error file will have attempts which could not be parsed:
 	cat data/locus_voucher_x_classed.err
 	::R12074 129 ::cn 
 
-just this one without a viable IC.  
+just this one without a viable institution code (IC).  
 
 The classification process allows for multiple DwCT per record, so the number of duplicate locus IDs can go up:
 
@@ -74,7 +75,10 @@ The classification process allows for multiple DwCT per record, so the number of
 We do not know how many of the original ~100 duplications made it in to this set of duplications
 but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)  
 
-#### Filter for known Institution codes:  
+#### Filter for known Institution codes: 
+Principal investigators on this project manually vetted a list of thousands of Institution Codes from the "Global Registry of Biorepositories" to isolate the subset they believed could house vertebrate collections hence the "blessed" designation. 
+
+  
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" < data/locus_voucher_x_classed.tab > data/locus_voucher_x_classed_blessed.tab
 	wc -l  data/locus_voucher_x_classed_blessed.tab
 	282,056 data/locus_voucher_classed_blessed.tab
@@ -84,7 +88,7 @@ but there are now 9,953 duplications on this parsed side. (down to 97.7% unique)
 
 leaving 2,583 locus with alternative (or duplicate) DwCT (back up to 99.08% unique).  
 
-### Report  
+### Report 
 
 The classifier reports on the types of issues it comes across changing a string into a DwCT
 but the main classes of issues can be seen in the error flag returned.
@@ -100,39 +104,40 @@ and I took a foolish shortcut and figured if they were using colons in one part 
 	cat data/locus_voucher_x_classed_blessed.tab | wc -l
 	282,056
 
+The next command returns how many non-canonical DwCT were assigned which classification
+classifications are ANDed (summed) powers of two
+
 	cat data/locus_voucher_x_classed_blessed.tab | cut -f3 | sort | uniq -c | sort -nr
 	 
 	 167399 17
-	  				93903 16
+	  93903 16			# even
 	  10365 19
 	   6724 265
 	   1349 1
 	    783 41
-	    635 0
+	    635 0			# these should not be here    
 	    444 135
 	    378 133
-	     			34 264
+	     34 264			# even
 	     24 267
 	     10 3
-	      			7 18
+	      7 18			# even
 	      1 63
 	
 	--------------------------------
 		188,112		93,944
 
-	188,112 syntactic  	( 1,984 only)  
-	280,075 semantic    (93,947 only) 
+	188,112 syntactic
+	280,075 semantic
 	186,128 both		 
-
-
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab | sort -u | wc -l
 	116,909 
 
 
-  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
+Hmm,  282,056 / 116,909 = 2.412 appears to a fair amount of duplication, on _average_ every non-canonical DwCT seems to shows up more than twice, lets see if that is true.  
 
-Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times"
+Remember this next command produces a distribution of counts for duplications, so the first number is how many non-canonical DwCT appeared, the second number of times:    
 
 	cut -f2 data/locus_voucher_x_classed_blessed.tab |sort | uniq -c | awk '{print $1}' | sort -n | uniq -c | sort -k1,1nr -k2,2n
     73958 1  (unique non-canonical DwCT)
@@ -227,7 +232,7 @@ Remember this next command produces a distribution of counts for duplications, s
 Since a couple dozen non-canonical DwCT appeared around a thousand times each 
 and a majority of the non-canonical DwCT appeared only once (73,958 of the 116,909 or 63.26%) I think it is safe to assume we have fundamentally different populations mixed together here, a slight majority where there is __a__ sequence per specimen and a minority where there are __many__ sequences per specimen with a few stragglers in between. 
 
----
+
 ####We are also interested in all DwCT (without filtering out canonical):
 
 
@@ -269,14 +274,15 @@ Initial datasource:
 	join -11 -22 data/VN_doublets.unl data/locus_voucher_doublets_all.tab  | wc -l
 	0
 
-not surprising, VN only has a handful of doublets:    
+not surprising, VN only has a handful of doublets:  
+  
 	cut -f1 -d \:  data/VN_doublets.unl | uniq
 	TTRS
 	grep "TTRS::"  data/locus_voucher_doublets_all.tab
 
 VN doublets confirmed for not existing in GB doublets.  
 
-### treat VN triplets as doublets: (omit the collection code)  
+####Treat VN triplets as doublets: (omit the collection code)  
 	sed 's|:[^:]*:|::|g' data/VN_triplets.unl  | sort > data/VN_triplets_gutted.unl
 
 	head data/VN_triplets_gutted.unl
@@ -306,7 +312,7 @@ VN doublets confirmed for not existing in GB doublets.
 	grep "TTRS:"  data/locus_voucher_triplets_all.tab
 	#just checking if the institution with VN doublets appears in GB triples. it does not.  
 
-#BOLD GB comparisons  
+#BOLD GB comparisons:  
 
 	cat data/ID_sampleid_classified_blessed_only.tab data/ID_catalognum_classified_blessed_only.tab data/ID_agree_classified_blessed.tab | grep -v "::" | sort -k2,2 -> data/ID_all_triplets.tab
   
@@ -331,9 +337,13 @@ VN doublets confirmed for not existing in GB doublets.
 
 #### D-D:  
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	283,875  #... that is a scary number
-	
-	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head 
+	283,875  #... that is a scary big number. 
+
+What causes so many doublet matches here?
+ * check the individual components 
+ * check the union  
+```
+	cut -f2  data/ID_all_doublets.tab  | sort | uniq -c | sort -nr | head  
 	    288 SAIAB::ES08
 	    115 SAIAB::ES07
 	     76 ECOCH::7192
@@ -345,10 +355,10 @@ VN doublets confirmed for not existing in GB doublets.
 	     35 SAIAB::ES06
 	     27 UAIC::14963.01
 
-	cut -f2  data/locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head 
+	cut -f2  data/locus_voucher_doublets_all.tab  | sort | uniq -c | sort -nr | head  
 	   1587 LSUMZ::B927
 	   1585 LSUMZ::B1980
-	  1580 LSUMZ::B28330
+	   1580 LSUMZ::B28330
 	   1574 LSUMZ::B37197
 	   1571 LSUMZ::B5354
 	   1550 LSUMZ::B7513
@@ -357,7 +367,7 @@ VN doublets confirmed for not existing in GB doublets.
 	   1487 LSUMZ::B36554
 	   1486 LSUMZ::B37257
 	
-	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head
+	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab | cut -f1 -d ' '| sort |uniq -c | sort -nr | head  
 	 221778 INIDEP::T
 	  16426 ZMMU::SVK
 	    858 NME::A
@@ -368,15 +378,15 @@ VN doublets confirmed for not existing in GB doublets.
 	    256 PIN::RVV
 	    256 MCZ::335
 	    192 SIO::93-298
+```
 
-
-ahh good! the old spaces within identifiers ...
-2910202   INIDEP::T 0224
-
+ahh the old spaces within a catalog number trick ...  
+INIDEP::T 0224  (and it's ilk ) need to be seen as "INIDEP::T 0224" not "INIDEP::T" mumble mumble
 
 	join -j2 -t'	' data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | wc -l
-	42975
-	# note there is a  Ctrl-v<tab>  within the tics of -t '' which will not paste into a command line 
+	42,975			# this is much more believable than 283,875
+					# note there is a  Ctrl-v<TAB>  within the tics of -t '' 
+					# which will not paste into a command line. 
 
 #### D-D!:
 	join -j2 data/ID_all_doublets.tab data/locus_voucher_doublets_all.tab  | cut -f1  -d ' '| sort -u | wc -l
@@ -384,7 +394,7 @@ ahh good! the old spaces within identifiers ...
 	
 	sed 's|:[^:]*:|::|g' data/locus_voucher_triplets_all.tab  | sort > data/locus_voucher_triplets_all_gutted.tab
 
-### D-T:
+#### D-T:
 	join -j2 data/reclassify/ID_all_.tab data/locus_voucher_doublets_all_gutted.tab | wc -l
 	0
 
@@ -396,7 +406,7 @@ ahh good! the old spaces within identifiers ...
 
 #### T-T:
 	join -12 -21  data/ID_all_triplets.tab  data/VN_triplets.unl | wc -l
-	103   checked w/explicit tab: same
+	103
 
 #### T-D:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl |wc -l
@@ -404,67 +414,59 @@ ahh good! the old spaces within identifiers ...
 
 #### T-D!:
 	join -12 -21  data/ID_all_doublets.tab  data/VN_triplets_gutted.unl | cut -f1 | sort -u |wc -l
-
 	18,766
 
 #### D-T:
 	join -12 -21  data/ID_all_triplets_gutted.tab  data/VN_doublets.unl |wc -l
-	0     # not checked as it ain't getting no smaller
+	0     # not checking for unique as it ain't getting no smaller
 
 #### D-D:
 	join -12 -21  data/ID_all_doublets.tab data/VN_doublets.unl |wc -l
 	0
 
-
 =========
-=========
-For the diagrams I really just want "all matches between sources"   
+## All Matches
 
-But to find the ones common to all three when they are all sliced and diced 
-and needing to be reassembled is not a warm and fuzzy.  
+For the area proportional ellipse diagrams I really just want "all matches between sources" irrespective of whether they are canonical/sloppy, triplet/doublet, exact/inexact, natural/coerced or whatever.   
+ 
+We will classify BOLD's catalognum & sampleid columns, filter on IC then merge (only keep one copy where the columns agree):  
 
-... in a sense we would gain some numbers (and accuracy) over the existing
-process since it glosses over corner cases such as if a doublet matched a canonical.  
-
-least work would be to do bold in common with the other two then compare the results in the next round  
-
-
-so classify bold catalognum & sampleid then filter on IC merge but only keep one copy of the overlap:\
 	bin/classify-dwct.reb --args "-i data/ID_sampleid.tab" > data/ID_sampleid_classified_all.tab 2> data/ID_sampleid_classified_all.err 
 	bin/classify-dwct.reb --args "-i data/ID_catalognum.tab" > data/ID_catalognum_classified_all.tab 2> data/ID_catalognum_classified_all.err
 
-filter for blessed IC:
+Filter for blessed IC:  
+
 	bin/filter_known_ic.awk -v "FILTER=rawdata/IC_knownfilter.list" <  data/ID_sampleid_classified_all.tab >  data/ID_sampleid_classified_blessed_all.tab
 	bin/filter_known_ic.awk -v "FILTER=rawdata/GenBankII/IC_knownfilter.list" <  data/ID_catalognum_classified_all.tab >  data/ID_catalognum_classified_blessed_all.tab
 	
 	comm -12 data/ID_catalognum_classified_blessed_all.tab data/ID_sampleid_classified_blessed_all.tab | wc -l
-	2248 (including ID and classification which don't matter)
+	2,248 (including ID and classification which don't matter)
 	
 	cut -f2 data/ID_catalognum_classified_blessed_all.tab | sort >  data/catalognum_alldone.list
 	cut -f2 data/ID_sampleid_classified_blessed_all.tab | sort >   data/sampleid_alldone.list
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list | wc -l
-	2280	meh
+	2,280	# meh.  underwhelming number of DwCT given in two columns of the same specimen record agree (>90% don't).
 	
 	comm -12  data/catalognum_alldone.list data/sampleid_alldone.list > data/shared_alldone.list
 	comm -13  data/catalognum_alldone.list data/sampleid_alldone.list > data/sampleid_only_alldone.list
 	comm -23  data/catalognum_alldone.list data/sampleid_alldone.list > data/catalognum_only_alldone.list
 	
 	wc -l data/shared_alldone.list data/sampleid_only_alldone.list data/catalognum_only_alldone.list
-	  2280 data/shared_alldone.list
-	 37701 data/sampleid_only_alldone.list
-	 25299 data/catalognum_only_alldone.list
-	 65280 total                          that is up about 600
+	  2,280 data/shared_alldone.list
+	 37,701 data/sampleid_only_alldone.list
+	 25,299 data/catalognum_only_alldone.list
+	 65,280 total                          that is up about 600
 	
 	cat data/shared_alldone.list data/sampleid_only_alldone.list data/catalognum_only_alldone.list |sort > data/bold_dwct_all.list
 	sort -u  data/bold_dwct_all.list | wc -l
-	57225                                    unique bold DwCT available
+	57225                                    unique BOLD DwCT available
 
-bolds list of 65,280 effective DwCT 
+BOLD's list of 65,280 effective DwCT   
 	data/bold_dwct_all.list
 
 
-find ALL effective GenBank specimen_voucher DwcT: 
+Find ALL effective GenBank specimen_voucher DwCT: 
 
 	bin/classify-dwct.reb  --args "-i data/locus_voucher.tab" > data/locus_voucher_classed_all.tab  2> data/locus_voucher_classed_all.err
 	bin/filter_known_ic.awk -v"FILTER=rawdata/IC_knownfilter.list" <  data/locus_voucher_classed_all.tab  >  data/locus_voucher_classed_blessed_all.tab
@@ -477,18 +479,18 @@ find ALL effective GenBank specimen_voucher DwcT:
 	sort -u data/genbank_dwct_all.list | wc -l 
 	123,111
 
-GenBanks list of 292,453 effective DwCT 
+GenBank's list of 292,453 effective DwCT:  
 
 	data/genbank_dwct_all.list
 
 
-VN should be easy 
+VN should be easy:  
 
 	sort -c data/VN_triplets.unl
 yep.
 
 ----------------------------------------------------------------------------------
-### exact (triplet or doublet)
+### Exact (triplet or doublet)
 
 	comm  -12 data/bold_dwct_all.list data/genbank_dwct_all.list  > data/bold_genbank_exact.list
 	comm  -12 data/bold_dwct_all.list data/VN_triplets.unl  > data/bold_vn_exact.list
@@ -500,13 +502,13 @@ yep.
   2219 data/genbank_vertnet_exact.list
  34564 total
 
-comm -12  data/bold_genbank_exact.list data/bold_vn_exact.list > data/bold_genbank_vn_exact.list
-wc -l data/bold_genbank_vn_exact.list
-45  --> all UAM:Mamm:xxx
+	comm -12  data/bold_genbank_exact.list data/bold_vn_exact.list > data/bold_genbank_vn_exact.list
+	wc -l data/bold_genbank_vn_exact.list
+	45  --> all UAM:Mamm:xxx
 
 ----------------------------------------------------------------------------------------------------
 
-#### inexact with only one or the other being a natural doublet
+### Inexact (only one or the other being a natural doublet)
 
 	comm -23 data/bold_dwct_all.list data/genbank_dwct_all.list  > data/b-g.list
 	comm -23 data/bold_dwct_all.list data/VN_triplets.unl  > data/b-v.list
@@ -525,26 +527,28 @@ wc -l data/bold_genbank_vn_exact.list
      290234 data/g-v.list
     8212508 data/v-g.list
 
-force a new set of doublets the old natural doublets can try to match the (natural) ones that matched the first time are already merged so can't be recounted now.:
+Produce a new set of doublets from the triplets which the existing natural doublets can try to match. 
+The (natural) ones that matched the first time are already merged so can't be recounted now.:
  
 	cat data/bold_genbank_exact.list data/g-b.list | sed 's/:[^:]*:/::/g'| sort > data/bgUg-b_doublet.list
 	cat data/bold_vn_exact.list data/v-b.list | sed 's/:[^:]*:/::/g' | sort > data/bvUv-b_doublet.list
 	cat data/genbank_vertnet_exact.list data/v-g.list | sed 's/:[^:]*:/::/g' | sort > data/gvUv-g_doublet.list
 
-	#head data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
+	head data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
+
 	wc -l data/bgUg-b_doublet.list data/bvUv-b_doublet.list data/gvUv-g_doublet.list
-   292453 data/bgUg-b_doublet.list
-  8214727 data/bvUv-b_doublet.list
-  8214727 data/gvUv-g_doublet.list  
+	   292453 data/bgUg-b_doublet.list
+	  8214727 data/bvUv-b_doublet.list
+	  8214727 data/gvUv-g_doublet.list  
   
 	comm -12 data/b-g.list data/bgUg-b_doublet.list > data/bold_gb_inexact.list
 	comm -12 data/b-v.list data/bvUv-b_doublet.list > data/bold_vn_inexact.list
 	comm -12 data/g-v.list data/gvUv-g_doublet.list > data/gb_vn_inexact.list
  
-wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.list
-   466 data/bold_gb_inexact.list
- 18200 data/bold_vn_inexact.list
- 39755 data/gb_vn_inexact.list
+	wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.list
+	   466 data/bold_gb_inexact.list
+	 18200 data/bold_vn_inexact.list
+	 39755 data/gb_vn_inexact.list
 
 -------------------------------------------------------------
 
@@ -553,48 +557,48 @@ wc -l data/bold_gb_inexact.list  data/bold_vn_inexact.list data/gb_vn_inexact.li
 	cat data/genbank_vertnet_exact.list g-v.list | sed 's/:[^:]*:/::/g' | sort > data/gvUg-v_doublet.list
 
 	wc -l data/bgUb-g_doublet.list data/bvUb-v_doublet.list  data/gvUg-v_doublet.list
-    65280 data/bgUb-g_doublet.list
-    65280 data/bvUb-v_doublet.list
-   292453 data/gvUg-v_doublet.list
+	    65280 data/bgUb-g_doublet.list
+	    65280 data/bvUb-v_doublet.list
+	   292453 data/gvUg-v_doublet.list
 
 	comm -12 g-b.list data/bgUb-g_doublet.list > data/bold_gb_inexact2.list
 	comm -12 v-b.list data/bvUb-v_doublet.list > data/bold_vn_inexact2.list
 	comm -12 v-g.list data/gvUg-v_doublet.list > data/gb_vn_inexact2.list
 
 	wc -l data/bold_gb_inexact2.list data/bold_vn_inexact2.list  data/gb_vn_inexact2.list
-   2688 data/bold_gb_inexact2.list
-      0 data/bold_vn_inexact2.list
-      0 data/gb_vn_inexact2.list
+	   2688 data/bold_gb_inexact2.list
+	      0 data/bold_vn_inexact2.list
+	      0 data/gb_vn_inexact2.list
  
 	comm -12  data/bold_gb_inexact.list data/bold_gb_inexact2.list
-(nothing in common -> good)
+	# nothing in common is good here
 
 	cat data/bold_gb_inexact.list data/bold_gb_inexact2.list data/bold_genbank_exact.list | sort > data/bold_genbank_match_II_all.list
-	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet__match_II_all.list
+	cat data/bold_vn_inexact.list data/bold_vn_inexact2.list data/bold_vn_exact.list | sort > data/bold_vernet_match_II_all.list
 
-	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet__match_II_all.list
+	cat gb_vn_inexact.list gb_vn_inexact2.list genbank_vertnet_exact.list | sort > data/genbank_vernet_match_II_all.list
 
-wc -l data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list data/genbank_vernet__match_II_all.list
-   35396 data/bold_genbank_match_II_all.list                                     ********************
-   18303 data/bold_vernet__match_II_all.list                                     ********************
-   41974 data/genbank_vernet__match_II_all.list                                  ********************
-   95673 total
+	wc -l data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list data/genbank_vernet_match_II_all.list
+	   35396 data/bold_genbank_match_II_all.list                ********************
+	   18303 data/bold_vernet_match_II_all.list                 ********************
+	   41974 data/genbank_vernet_match_II_all.list              ********************
+	   95673 total
 
+Find all matches in common
 
-	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet__match_II_all.list > data/bold_genbank_vertnet_match_II_all
+	comm -12  data/bold_genbank_match_II_all.list data/bold_vernet_match_II_all.list > data/bold_genbank_vertnet_match_II_all
  	wc -l data/bold_genbank_vertnet_match_II_all
-	16,048   ding ding ding that is pretty much the number we needed.          ********************  
+	16,048   													********************  
 
-____________________________________________________________________________________________________
 
-####if we only want to count unique matches:
+
+#### Only unique matches:  
 	sort -u  data/genbank_vernet_match_II_all.list | wc -l
+	35,280
 	sort -u  data/bold_vernet_match_II_all.list | wc -l
-	sort -u  data/bold_genbank_match_II_all.list | wc -l		
+	17,737
+	sort -u  data/bold_genbank_match_II_all.list | wc -l
+	3,1139		
 	sort -u  data/bold_genbank_vertnet_match_II_all | wc -l
-
-35280
-17737
-31139
-15847 
+	15,847 
 
